@@ -11,6 +11,14 @@
             "program": "${workspaceFolder}/game.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Run server",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/server.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }
