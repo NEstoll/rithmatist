@@ -25,53 +25,47 @@ class Vigor(Line):
         self.endx = end[0]
         self.endy = end[1]
         #math
-        self.dy = (self.endy-self.starty)/self.maxLength
-        self.dx = (self.endx-self.startx)/self.maxLength
+        self.dy = (self.starty-self.endy)/self.maxLength
+        self.dx = (self.startx-self.endx)/self.maxLength
         self.head = (self.startx, self.starty)
         self.amplitude = 0
         #add self to collision
         lib.getCollision(self.head).append(self)
 
     def draw(self) -> None:
-        prev = (self.startx - self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + self.dx*math.sin(self.amplitude)*self.maxLength/8)
-        lib.pygame.draw.circle(lib.drawing, (0, 255, 0), prev, 3)
+        lib.pygame.draw.circle(lib.drawing, (0, 255, 0), (self.startx, self.starty), 3)
+        prev = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
         for i in range(1, self.length):
             # start + change + sin (rotated)
             # x + dx - dy*sin()
             # y + dy + dx*sin()
-            next = (self.startx + self.dx*i - self.dy*math.sin(self.amplitude + (i*4*math.pi/self.maxLength))*self.maxLength/8,self.starty + self.dy*i + self.dx*math.sin(self.amplitude + (i*4*math.pi/(self.maxLength)))*self.maxLength/8)
+            next = (self.startx + -self.dx*i - -self.dy*math.sin(self.amplitude + (i*4*math.pi/self.maxLength))*self.maxLength/8,self.starty + -self.dy*i + -self.dx*math.sin(self.amplitude + (i*4*math.pi/(self.maxLength)))*self.maxLength/8)
             lib.drawLine(prev, next, self.color)
             prev = next
-        lib.pygame.draw.circle(lib.drawing, (255, 0, 0), next, 3)
+        lib.pygame.draw.circle(lib.drawing, (255, 0, 0), (self.endx, self.endy), 3)
         #lib.pygame.draw.line(lib.pygame.display.get_surface(), (255, 0, 0), (self.startx, self.starty), (self.endx, self.endy))
     
     """
-    updates the line TODO depend on framerate?
-    @returns bool True if line should be deleted
+    updates the line 
+    TODO depend on framerate?
     
     """
-    def update(self) -> bool:
+    def update(self) -> None:
         super().update()
-        #if we are outside the screen, delete ourselves
-        if (lib.getCollision(self.head) == []):
-            delete = True
-            for i in range(-self.maxLength*2, self.maxLength*2, self.maxLength*2):
-                for j in range(-self.maxLength*2, self.maxLength*2, self.maxLength*2):
-                    if (lib.getCollision((self.head[0]+i, self.head[1]+j)) != []):
-                        delete = False
-            if delete:
-                return 1
-        else:
-            #remove ourselves from old collision box
-            lib.getCollision(self.head).remove(self)
+        #remove self from collision (setup stuff)
+
+
         #move
-        self.starty -= self.speed*self.dy
-        self.startx -= self.speed*self.dx
-        self.endx -= self.speed*self.dx
-        self.endy -= self.speed*self.dy
+        self.starty += self.speed*self.dy
+        self.startx += self.speed*self.dx
+        self.endx += self.speed*self.dx
+        self.endy += self.speed*self.dy
         self.amplitude -= self.speed*4*math.pi/(self.maxLength)
+
+        #update the "real" start point, save reference for collision detection
         old = self.head
         self.head = (self.startx - self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + self.dx*math.sin(self.amplitude)*self.maxLength/8)
+        
         #do collision checks
         for line in lib.getCollision(old) + lib.getCollision(self.head):
             if isinstance(line, Forbiddance):
@@ -91,8 +85,13 @@ class Vigor(Line):
             elif isinstance(line, Warding):
                 if math.dist(self.head[0], self.head[1], line.centerx, line.centery) <= line.radius:
                     #collision
-
                     pass
+                pass
+
+        #if we are outside the screen, mark ourselves for deletion
+        if (lib.getCollision(self.head) == [] and lib.getCollision((self.endx, self.endy)) == []):
+            #raise IndexError
             pass
-        lib.getCollision(self.head).append(self)
-        return 0
+        else:
+            #add ourselves to collision (and other external stuffs)
+            lib.getCollision(self.head).append(self)

@@ -21,7 +21,11 @@ class Game:
         lib.pygame.display.update()
 
     def update(self):
-        self.objects = [o for o in self.objects if not o.update()]
+        for o in reversed(self.objects):
+            try:
+                o.update()
+            except IndexError:
+                self.objects.remove(o)
         
     def draw(self):
         #update and draw each object, and then handle render -> display trasform
@@ -61,4 +65,4 @@ if __name__ == "__main__": #temp runner code
                 game.objects.append(Vigor(lib.screenToDrawing(lib.pygame.mouse.get_pos()), start))
         game.update()
         game.draw()
-        lib.pygame.time.delay(10)
+        lib.pygame.time.delay(100)
