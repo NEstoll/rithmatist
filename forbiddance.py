@@ -1,5 +1,5 @@
 from line import Line
-import pygame
+import lib
 
 
 class Forbiddance(Line):
@@ -7,7 +7,9 @@ class Forbiddance(Line):
         super().__init__()
         self.start = start
         self.end = end
+        lib.getCollision(self.start).append(self)
+        lib.getCollision(self.end).append(self)
     def draw(self):
-        pygame.draw.line(pygame.display.get_surface(), (0, 0, 255), self.start, self.end)
+        lib.drawLine(self.start, self.end)
     def update(self):
         pass
