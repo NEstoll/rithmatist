@@ -19,8 +19,7 @@ def getCollision(position: tuple[float, float]) -> list:
 def isOutofBounds(position: tuple[float, float]) -> bool:
     if (position[0] < 0 or position[0] > gameSize()[0] or position[1] < 0 or position[1] > gameSize()[1]):
         return False
-    else:
-        return True
+    return True
     
     
 def screenToGame(position:tuple[int, int]) -> tuple[int, int]:
