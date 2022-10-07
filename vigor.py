@@ -33,7 +33,7 @@ class Vigor(Line):
         lib.getCollision(self.head).append(self)
 
     def draw(self) -> None:
-        lib.pygame.draw.circle(lib.drawing, (0, 255, 0), (self.startx, self.starty), 3)
+        lib.drawPoint((self.startx, self.starty), (0, 255, 0))
         prev = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
         for i in range(1, self.length):
             # start + change + sin (rotated)
@@ -41,8 +41,9 @@ class Vigor(Line):
             # y + dy + dx*sin()
             next = (self.startx + -self.dx*i - -self.dy*math.sin(self.amplitude + (i*4*math.pi/self.maxLength))*self.maxLength/8,self.starty + -self.dy*i + -self.dx*math.sin(self.amplitude + (i*4*math.pi/(self.maxLength)))*self.maxLength/8)
             lib.drawLine(prev, next, self.color)
-            prev = next
-        lib.pygame.draw.circle(lib.drawing, (255, 0, 0), (self.endx, self.endy), 3)
+            prev = next 
+        
+        lib.drawPoint((self.endx, self.endx), (255, 0, 0))
         #lib.pygame.draw.line(lib.pygame.display.get_surface(), (255, 0, 0), (self.startx, self.starty), (self.endx, self.endy))
     
     """
@@ -53,7 +54,7 @@ class Vigor(Line):
     def update(self) -> None:
         super().update()
         #remove self from collision (setup stuff)
-
+        lib.getCollision(self.head).remove(self)
 
         #move
         self.starty += self.speed*self.dy
@@ -83,15 +84,17 @@ class Vigor(Line):
                     #self.collisions.update((1, angle))
                     pass
             elif isinstance(line, Warding):
-                if math.dist(self.head[0], self.head[1], line.centerx, line.centery) <= line.radius:
+                if math.dist((self.head[0], self.head[1]), (line.centerx, line.centery)) <= line.radius:
                     #collision
                     pass
                 pass
 
         #if we are outside the screen, mark ourselves for deletion
-        if (lib.getCollision(self.head) == [] and lib.getCollision((self.endx, self.endy)) == []):
+        if (lib.isOutofBounds(self.head) and lib.isOutofBounds((self.head[0] + self.dx*self.length, self.head[1] + self.dy*self.length))):
+            self.color = (0, 0, 255)
             #raise IndexError
             pass
         else:
             #add ourselves to collision (and other external stuffs)
-            lib.getCollision(self.head).append(self)
+            pass
+        lib.getCollision(self.head).append(self)

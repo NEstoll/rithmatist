@@ -29,7 +29,7 @@ class Game:
         
     def draw(self):
         #update and draw each object, and then handle render -> display trasform
-        lib.pygame.draw.rect(lib.drawing, (0, 0, 0), lib.pygame.Rect(0, 0, lib.displaySize()[0], lib.displaySize()[1]))
+        lib.pygame.draw.rect(lib.renderSurface, (0, 0, 0), lib.pygame.Rect(0, 0, lib.gameSize()[0], lib.gameSize()[1]))
         remove = []
         for o in self.objects:
             # if o.update():
@@ -40,7 +40,7 @@ class Game:
         #     self.objects.remove(o)
         #lib.collisionBoxes()
 
-        frame = lib.pygame.transform.scale(lib.drawing, self.window.get_size())
+        frame = lib.pygame.transform.smoothscale(lib.renderSurface, self.window.get_size())
         self.window.blit(frame, frame.get_rect())
         lib.pygame.display.flip()
 
@@ -53,6 +53,7 @@ if __name__ == "__main__": #temp runner code
     game.draw()
     
     running = True
+    start = None
     while running:
         for evt in lib.pygame.event.get(): #todo, add event handling to seperate class/game class
             if evt.type == lib.pygame.quit:
@@ -60,9 +61,10 @@ if __name__ == "__main__": #temp runner code
                 running = False
                 break
             elif evt.type == lib.pygame.MOUSEBUTTONDOWN:
-                start = lib.screenToDrawing(lib.pygame.mouse.get_pos())
-            elif evt.type == lib.pygame.MOUSEBUTTONUP and start:
-                game.objects.append(Vigor(lib.screenToDrawing(lib.pygame.mouse.get_pos()), start))
+                start = lib.screenToGame(lib.pygame.mouse.get_pos())
+            elif evt.type == lib.pygame.MOUSEBUTTONUP and start != None:
+                game.objects.append(Vigor(lib.screenToGame(lib.pygame.mouse.get_pos()), start))
+                start = None
         game.update()
         game.draw()
         lib.pygame.time.delay(100)
