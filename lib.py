@@ -3,8 +3,8 @@ import pygame
 
 #drawing functions
 def drawLine(start :tuple[float, float], end : tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)) -> None:
-    pygame.draw.line(renderSurface, color, start, end, 2)
-def drawPoint(center: tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)):
+    pygame.draw.line(renderSurface, color, start, end, 3)
+def drawPoint(center: tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)) -> None:
     pygame.draw.circle(renderSurface, color, center, 3)
 
 #helper functions
@@ -12,9 +12,14 @@ def gameSize() -> tuple[int, int]:
     return renderSurface.get_size()
 def displaySize() -> tuple[int, int]:
     return pygame.display.get_window_size()
+def display() -> pygame.surface.Surface:
+    return pygame.display.get_surface()
+def events() -> list[pygame.event.Event]:
+    return pygame.event.get()
+
 def getCollision(position: tuple[float, float]) -> list:
     if (isOutofBounds(position)):
-        return []
+        return OoB
     return collision[int(position[0]/(gameSize()[0]/collisionNum))][int(position[1]//(gameSize()[1]/collisionNum))]
 def isOutofBounds(position: tuple[float, float]) -> bool:
     if (position[0] < 0 or position[0] > gameSize()[0] or position[1] < 0 or position[1] > gameSize()[1]):
@@ -35,10 +40,11 @@ def collisionBoxes() -> None:
             drawLine((prev[0], next[1]), next)
 
 #setup
-renderSurface = pygame.Surface((1600, 900))
+renderSurface = pygame.Surface((1920, 1080), pygame.SRCALPHA)
 #collision array
 collisionNum = 20
 collision = []
+OoB = []
 for i in range(0, collisionNum):
     collision.append([])
     for j in range(0, collisionNum):

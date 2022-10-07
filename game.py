@@ -1,5 +1,7 @@
 
 from os import remove
+
+import pygame
 import lib
 
 from forbiddance import Forbiddance
@@ -15,42 +17,37 @@ class Game:
         #variable instantiation
         self.objects = []
 
-        #display
-        #self.window = lib.pygame.display.set_mode((320, 240))
-        self.window = lib.pygame.display.set_mode((0, 0), lib.pygame.FULLSCREEN)
-        lib.pygame.display.update()
-
-    def update(self):
+    def update(self) -> None:
         for o in reversed(self.objects):
             try:
                 o.update()
             except IndexError:
                 self.objects.remove(o)
-        
-    def draw(self):
-        #update and draw each object, and then handle render -> display trasform
-        lib.pygame.draw.rect(lib.renderSurface, (0, 0, 0), lib.pygame.Rect(0, 0, lib.gameSize()[0], lib.gameSize()[1]))
-        remove = []
-        for o in self.objects:
-            # if o.update():
-            #     remove.append(o)
-            #     continue
-            o.draw()
-        # for o in remove:
-        #     self.objects.remove(o)
-        #lib.collisionBoxes()
 
-        frame = lib.pygame.transform.smoothscale(lib.renderSurface, self.window.get_size())
-        self.window.blit(frame, frame.get_rect())
+    def isRunning(self) -> bool:
+        return True
+
+    def draw(self, display) -> None:
+        #update and draw each object, and then handle render -> display trasform
+        lib.renderSurface.fill(0)
+        display.fill(0)
+        for o in self.objects:
+            o.draw()
+
+        frame = lib.pygame.transform.smoothscale(lib.renderSurface, lib.displaySize())
+        display.blit(frame, frame.get_rect())
         lib.pygame.display.flip()
 
 
 
+
 if __name__ == "__main__": #temp runner code
+    pygame.init()
+    pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     game = Game()
     game.objects.append(Forbiddance((300, 100), (100, 300)))
     game.objects.append(Vigor((400, 400), (800, 800)))
-    game.draw()
+    game.draw(pygame.display.get_surface())
     
     running = True
     start = None
@@ -66,5 +63,5 @@ if __name__ == "__main__": #temp runner code
                 game.objects.append(Vigor(lib.screenToGame(lib.pygame.mouse.get_pos()), start))
                 start = None
         game.update()
-        game.draw()
+        game.draw(pygame.display.get_surface())
         lib.pygame.time.delay(100)
