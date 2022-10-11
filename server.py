@@ -1,6 +1,5 @@
 import socket as socketLib
 import threading
-from tkinter import N
 from forbiddance import Forbiddance
 from game import Game
 from queue import Empty, Full, Queue

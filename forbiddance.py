@@ -1,3 +1,4 @@
+import math
 from line import Line
 import lib
 
@@ -13,3 +14,5 @@ class Forbiddance(Line):
         lib.drawLine(self.start, self.end)
     def update(self):
         pass
+    def angle(self):
+        return math.atan2(self.start[0]-self.end[0], self.start[1] - self.end[1])

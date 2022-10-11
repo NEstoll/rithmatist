@@ -51,7 +51,7 @@ class Player:
         #TODO check first bit for validating states
         match data[0]:
             case 1:
-                return Vigor((int.from_bytes(data[1:3], "big"), int.from_bytes(data[3:5], "big")), (int.from_bytes(data[5:7], "big"), int.from_bytes(data[7:9], "big")))
+                return Vigor((int.from_bytes(data[1:3], "big"), int.from_bytes(data[3:5], "big")), (int.from_bytes(data[5:7], "big"), int.from_bytes(data[7:9], "big")), True)
             case 2:
                 return Forbiddance((int.from_bytes(data[1:3], "big"), int.from_bytes(data[3:5], "big")), (int.from_bytes(data[5:7], "big"), int.from_bytes(data[7:9], "big")))
             case 3:

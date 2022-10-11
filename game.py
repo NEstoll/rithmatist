@@ -16,8 +16,11 @@ class Game:
     def __init__(self) -> None:
         #variable instantiation
         self.objects = []
+        self.undrawn = []
+        self.time = 0
 
     def update(self) -> None:
+        self.time += 1
         for o in reversed(self.objects):
             try:
                 o.update()
@@ -33,7 +36,9 @@ class Game:
         display.fill(0)
         for o in self.objects:
             o.draw()
-
+        for o in self.undrawn:
+            o.draw()
+        lib.collisionBoxes()
         frame = lib.pygame.transform.smoothscale(lib.renderSurface, lib.displaySize())
         display.blit(frame, frame.get_rect())
         lib.pygame.display.flip()
@@ -45,8 +50,8 @@ if __name__ == "__main__": #temp runner code
     pygame.init()
     pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     game = Game()
-    game.objects.append(Forbiddance((300, 100), (100, 300)))
-    game.objects.append(Vigor((400, 400), (800, 800)))
+    game.objects.append(Forbiddance((200, 290), (200, 600)))
+    game.objects.append(Vigor((400, 400), (800, 800), True))
     game.draw(pygame.display.get_surface())
     
     running = True
@@ -60,8 +65,13 @@ if __name__ == "__main__": #temp runner code
             elif evt.type == lib.pygame.MOUSEBUTTONDOWN:
                 start = lib.screenToGame(lib.pygame.mouse.get_pos())
             elif evt.type == lib.pygame.MOUSEBUTTONUP and start != None:
-                game.objects.append(Vigor(lib.screenToGame(lib.pygame.mouse.get_pos()), start))
+                game.objects.append(Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()), True))
                 start = None
+            elif evt.type == lib.pygame.KEYDOWN:
+                if lib.pygame.key.get_pressed()[lib.pygame.K_SPACE]:
+                    # game.update()
+                    # game.draw(pygame.display.get_surface())
+                    pass
         game.update()
         game.draw(pygame.display.get_surface())
-        lib.pygame.time.delay(100)
+        lib.pygame.time.delay(10)
