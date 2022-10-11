@@ -1,6 +1,5 @@
 import math
 
-from requests import head
 import lib
 from line import Line
 from warding import Warding
@@ -74,7 +73,7 @@ class Vigor(Line):
             lib.drawLine(prev, next, self.color)
             prev = next
 
-    def sin(self, i:int):
+    def sin(self, i:int) -> float:
         return math.sin(self.amplitude + (i*4*math.pi/self.maxLength))*self.maxLength/8
     
     def update(self) -> None:
@@ -109,12 +108,15 @@ class Vigor(Line):
                             #calculate angles
                             otherAngle = line.angle()%math.pi
                             selfAngle = math.atan2(self.endx-self.startx, self.endy-self.starty)
-                            diff = 2*abs(otherAngle-selfAngle)-math.pi
+                            diff = -2*abs(otherAngle-selfAngle)-math.pi
                             #update x and y based on collision
-                            self.dx = math.cos(diff)*self.dx - math.sin(diff)*self.dy
-                            self.dy = math.sin(diff)*self.dx + math.cos(diff)*self.dy
-                            #update length
+                            oldx = self.dx
+                            oldy = self.dy
+                            self.dx = math.cos(diff)*oldx - math.sin(diff)*oldy
+                            self.dy = math.sin(diff)*oldx + math.cos(diff)*oldy
+                            #update vars
                             self.length -= 1
+                            self.head = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
                             pass
                     elif isinstance(line, Warding):
                         if math.dist((self.head[0], self.head[1]), (line.centerx, line.centery)) <= line.radius:
