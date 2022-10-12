@@ -18,7 +18,7 @@ class Vigor(Line):
         super().__init__()
         #vars
         self.length=self.maxLength
-        self.collisions = {}
+        self.points = []
         self.color = (255, 255, 255)
         self.verified = verified
         self.drawn = False
@@ -38,6 +38,7 @@ class Vigor(Line):
 
         #add self to collision
         lib.getCollision(self.head).append(self)
+        self.createList(int(self.length/self.speed))
 
     def draw(self) -> None:
         """ draw self on render surface
@@ -52,26 +53,29 @@ class Vigor(Line):
             # lib.drawLine(self.head, (self.head[0]-self.dx*self.length, self.head[1]-self.dy*self.length))
             #draw sin wave
             # lib.drawLine((self.startx, self.starty), (self.endx, self.endy))
-            # lib.drawPoint((self.startx, self.starty), (0, 255, 0))
+            lib.drawPoint((self.startx, self.starty), (255, 0, 0))
             # lib.drawPoint((self.endx, self.endy), (0, 255, 0))
-            self.drawWave(self.length)
+            # self.createList(self.length)
+            for i in range(1, len(self.points)):
+                lib.drawLine(self.points[i-1], self.points[i], self.color)
         else:
             old = self.color
             self.color += (50,)
-            self.drawWave(self.length)
+            for i in range(1, len(self.points)):
+                lib.drawLine(self.points[i-1], self.points[i])
             self.color = old
-            self.drawWave(self.drawAmount)
+            for i in range(1, len(self.points)):
+                lib.drawLine(self.points[i-1], self.points[i], self.color)
     
-    def drawWave(self, length) -> None:
-        prev = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
+
+
+    def createList(self, length) -> None:
+        # prev = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
         slope = (self.dx, self.dy)
         for i in range(1, length+1):
-            slope = self.collisions.get(i, slope)
-            # next = (self.startx + -slope[0]*i - -slope[1]*math.sin(self.amplitude + (i*4*math.pi/self.maxLength))*self.maxLength/8,self.starty + -slope[1]*i + -slope[0]*math.sin(self.amplitude + (i*4*math.pi/(self.maxLength)))*self.maxLength/8)
-            next = (prev[0] - slope[0] + slope[1]*(self.sin(i)-self.sin(i-1)),prev[1] - slope[1] - slope[0]*(self.sin(i)-self.sin(i-1)))
-            
-            lib.drawLine(prev, next, self.color)
-            prev = next
+            next = (self.startx + -slope[0]*i*self.speed - -slope[1]*math.sin(self.amplitude + (i*self.speed*4*math.pi/self.maxLength))*self.maxLength/8,self.starty + -slope[1]*i*self.speed + -slope[0]*math.sin(self.amplitude + (i*self.speed*4*math.pi/(self.maxLength)))*self.maxLength/8)
+            # next = (prev[0] - slope[0] + slope[1]*(self.sin(i)-self.sin(i-1)),prev[1] - slope[1] - slope[0]*(self.sin(i)-self.sin(i-1)))
+            self.points.append(next)
 
     def sin(self, i:int) -> float:
         return math.sin(self.amplitude + (i*4*math.pi/self.maxLength))*self.maxLength/8
@@ -93,37 +97,59 @@ class Vigor(Line):
             old = self.head
             self.head = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
             if (self.head != old):
+                good = False
                 #do collision checks
-                for line in lib.getCollision(old) + lib.getCollision(self.head):
-                    if isinstance(line, Forbiddance):
-                        a = ((self.head[0]-old[0])*(line.start[1]-old[1]) - (self.head[1]-old[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
-                        b = ((line.end[0]-line.start[0])*(line.start[1]-old[1]) - (line.end[1]-line.start[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
-                        if (0 <= a <= 1) and (0 <= b <= 1):
-                            #TODO get angle, do collision
-                            print("collision")
-                            #collision
-                            intersection = (line.start[0] + a*(line.end[0]-line.start[0]), line.start[1] + (a*(line.end[1]+line.start[1])))
-                            #save past angle for later drawing
-                            self.collisions.update({25: (self.dx, self.dy)})
-                            #calculate angles
-                            otherAngle = line.angle()%math.pi
-                            selfAngle = math.atan2(self.endx-self.startx, self.endy-self.starty)
-                            diff = -2*abs(otherAngle-selfAngle)-math.pi
-                            #update x and y based on collision
-                            oldx = self.dx
-                            oldy = self.dy
-                            self.dx = math.cos(diff)*oldx - math.sin(diff)*oldy
-                            self.dy = math.sin(diff)*oldx + math.cos(diff)*oldy
-                            #update vars
-                            self.length -= 1
-                            self.head = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
+                while not good:
+                    good = True
+                    for line in set(lib.getCollision(old) + lib.getCollision(self.head)):
+                        if isinstance(line, Forbiddance):
+                            a = ((self.head[0]-old[0])*(line.start[1]-old[1]) - (self.head[1]-old[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
+                            b = ((line.end[0]-line.start[0])*(line.start[1]-old[1]) - (line.end[1]-line.start[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
+                            if (0 <= a <= 1) and (0 <= b <= 1):
+                                #TODO get angle, do collision
+                                print("collision: ", line)
+                                print(set(lib.getCollision(old) + lib.getCollision(self.head)))
+                                #collision
+                                intersection = (line.start[0] + a*(line.end[0]-line.start[0]), line.start[1] + (a*(line.end[1]+line.start[1])))
+                                #calculate angles
+                                otherAngle = line.angle()%math.pi
+                                selfAngle = math.atan2(self.endx-self.startx, self.endy-self.starty)
+                                diff = -2*abs(otherAngle-selfAngle)-math.pi
+                                #jump back 1 step (to prevent additional collisions)
+                                self.starty -= self.speed*self.dy
+                                self.startx -= self.speed*self.dx
+                                #update start (jump to sin wave)
+                                self.startx += self.dy*math.sin(self.amplitude)*self.length/8
+                                self.starty -= self.dx*math.sin(self.amplitude)*self.length/8
+                                #change dx and dy
+                                oldx = self.dx
+                                oldy = self.dy
+                                self.dx = math.cos(diff)*oldx - math.sin(diff)*oldy
+                                self.dy = math.sin(diff)*oldx + math.cos(diff)*oldy
+                                #update start again to be off the sin wave
+                                self.startx += self.dy*math.sin(self.amplitude)*self.length/8
+                                self.starty -= self.dx*math.sin(self.amplitude)*self.length/8
+                                #flip amplitude
+                                self.amplitude *= -1
+                                #update vars
+                                print(((self.startx, self.starty), (self.dx, self.dy)))
+                                print(self.head)
+                                self.length -= 1
+                                self.head = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
+                                print(self.head)
+                                # good = False
+                                break
+                        elif isinstance(line, Warding):
+                            if math.dist((self.head[0], self.head[1]), (line.centerx, line.centery)) <= line.radius:
+                                #collision
+                                pass
                             pass
-                    elif isinstance(line, Warding):
-                        if math.dist((self.head[0], self.head[1]), (line.centerx, line.centery)) <= line.radius:
-                            #collision
-                            pass
-                        pass
             #TODO check for multiple collisions
+
+            #update list
+            self.points.insert(0, self.head)
+            if len(self.points) > self.length/self.speed:
+                self.points.pop()
 
             #move
             self.starty += self.speed*self.dy

@@ -38,7 +38,7 @@ class Game:
             o.draw()
         for o in self.undrawn:
             o.draw()
-        lib.collisionBoxes()
+        # lib.collisionBoxes()
         frame = lib.pygame.transform.smoothscale(lib.renderSurface, lib.displaySize())
         display.blit(frame, frame.get_rect())
         lib.pygame.display.flip()
@@ -67,7 +67,7 @@ if __name__ == "__main__": #temp runner code
             elif evt.type == lib.pygame.MOUSEBUTTONUP and start != None:
                 game.objects.append(Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()), True))
                 start = None
-            elif evt.type == lib.pygame.KEYDOWN:
+            else:
                 if lib.pygame.key.get_pressed()[lib.pygame.K_SPACE]:
                     # game.update()
                     # game.draw(pygame.display.get_surface())
