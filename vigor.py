@@ -7,7 +7,7 @@ from forbiddance import Forbiddance
 
 class Vigor(Line):
     #global vars
-    maxLength = 100
+    maxLength = 1000
     speed = 2
     
     def __init__(self, start : tuple[int, int], end: tuple[int, int], verified:bool=False) -> None:
@@ -25,7 +25,7 @@ class Vigor(Line):
         self.skipSpeed = 0
         self.verified = verified
         self.drawn = False
-        self.drawAmount = 90
+        self.drawAmount = 0
 
         #instantiate position
         self.startx = start[0]
@@ -59,16 +59,17 @@ class Vigor(Line):
             # lib.drawPoint((self.startx, self.starty), (255, 0, 0))
             # lib.drawPoint((self.endx, self.endy), (0, 255, 0))
             # self.createList(self.length)
-            for i in range(1, len(self.points)):
-                lib.drawLine(self.points[i-1], self.points[i], self.color)
+            self.drawPoints(self.length/self.speed)
         else:
             old = self.color
             self.color += (50,)
-            for i in range(1, len(self.points)):
-                lib.drawLine(self.points[i-1], self.points[i])
+            self.drawPoints(self.length/self.speed)
             self.color = old
-            for i in range(1, len(self.points)):
-                lib.drawLine(self.points[i-1], self.points[i], self.color)
+            self.drawPoints(self.drawAmount)
+
+    def drawPoints(self, length) -> None:
+        for i in range(1, int(min(len(self.points), length))):
+            lib.drawLine(self.points[i-1], self.points[i], self.color)
     
 
 
@@ -152,6 +153,10 @@ class Vigor(Line):
                                 #update start again to be off the sin wave
                                 self.startx -= self.dy*math.sin(self.amplitude)*self.maxLength/8
                                 self.starty += self.dx*math.sin(self.amplitude)*self.maxLength/8
+                                #re-jump forward to not miss a step
+                                self.starty += self.speed*self.dy
+                                self.startx += self.speed*self.dx
+
                                 #flip amplitude
                                 # self.amplitude *= -1
                                 self.flip = not self.flip
@@ -164,7 +169,7 @@ class Vigor(Line):
                                 print(((self.startx, self.starty), (self.dx, self.dy)))
                                 cut = abs(180-math.degrees(abs(diff+math.pi)))/2+10
                                 self.skipSpeed = max(self.length/cut, 1)
-                                self.length -= cut
+                                # self.length -= cut
                                 self.head = (self.startx + self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty - self.dx*math.sin(self.amplitude)*self.maxLength/8)
                                 # good = False
                                 break
@@ -193,11 +198,11 @@ class Vigor(Line):
             
             lib.getCollision(self.head).append(self)
         else: #not yet drawn, just update draw amount
-            if self.drawAmount == self.length:
+            if self.drawAmount >= self.length/self.speed:
                 if self.verified:
                     self.drawn = True
             else:
-                self.drawAmount += 1
+                self.drawAmount += self.length/(100*self.speed)
 
 
     def toBytes(self) -> bytes:
