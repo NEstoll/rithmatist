@@ -126,5 +126,10 @@ class Player:
 
 if __name__ == "__main__":
     localPlayer = Player()
-    localPlayer.connect(sys.argv[1], int(sys.argv[2]))
+    if (len(sys.argv) == 2):
+        localPlayer.connect(sys.argv[1])
+    elif (len(sys.argv) == 3):
+        localPlayer.connect(sys.argv[1], int(sys.argv[2]))
+    else:
+        localPlayer.connect()
     localPlayer.run()
