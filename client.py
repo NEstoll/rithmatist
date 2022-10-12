@@ -1,5 +1,6 @@
 from queue import Empty, Full, Queue
 import socket as socketLib
+import sys
 import threading
 
 from forbiddance import Forbiddance
@@ -26,12 +27,9 @@ class Player:
 
         #setup socket
         self.server = socketLib.socket(socketLib.AF_INET, socketLib.SOCK_STREAM)
-        self.connect()
         #create thread for networking
-        tout = threading.Thread(target=self.sendLines)
-        tout.start()
-        tin = threading.Thread(target=self.parseInput, args=(self.server,))
-        tin.start() #TODO start threads later
+        self.tout = threading.Thread(target=self.sendLines)
+        self.tin = threading.Thread(target=self.parseInput, args=(self.server,))
 
     def parseInput(self, socket:socketLib.socket) -> None:
         data = b''
@@ -71,6 +69,8 @@ class Player:
         print("connected to server")
 
     def run(self) -> None:
+        self.tout.start()
+        self.tin.start()
         start = None
         while self.game.isRunning():
             for evt in lib.pygame.event.get(): #todo, add event handling to seperate class/game class
@@ -81,9 +81,16 @@ class Player:
                 elif evt.type == lib.pygame.MOUSEBUTTONDOWN:
                     #starting to draw a line
                     start = lib.screenToGame(lib.pygame.mouse.get_pos())
+                    self.button = lib.pygame.mouse.get_pressed()
                 elif evt.type == lib.pygame.MOUSEBUTTONUP and start != None:
                     #line drawn
-                    line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                    if self.button[0]:
+                        line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                    elif self.button[2]:
+                        line = Forbiddance(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                    else:
+                        # line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                        continue
                     start = None    
                     #send to server
                     self.lineQueue.put(line)
@@ -119,4 +126,5 @@ class Player:
 
 if __name__ == "__main__":
     localPlayer = Player()
+    localPlayer.connect(sys.argv[1], int(sys.argv[2]))
     localPlayer.run()

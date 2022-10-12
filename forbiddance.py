@@ -5,6 +5,8 @@ import lib
 
 
 class Forbiddance(Line):
+    segments = 100
+
     def __init__(self, start : tuple[int, int], end: tuple[int, int]) -> None:
         super().__init__()
         self.start = start
@@ -32,3 +34,6 @@ class Forbiddance(Line):
         return self.__str__()
     def __str__(self) -> str:
         return "LoV: start=" + str(self.start) + " end=" + str(self.end)
+    def toBytes(self) -> bytes:
+        return b'\x02' + int(self.start[0]).to_bytes(2, 'big')+int(self.start[1]).to_bytes(2, 'big')+int(self.end[0]).to_bytes(2, 'big')+int(self.end[1]).to_bytes(2, 'big')
+
