@@ -8,7 +8,7 @@ from forbiddance import Forbiddance
 class Vigor(Line):
     #global vars
     maxLength = 100
-    speed = .2
+    speed = 2
     
     def __init__(self, start : tuple[int, int], end: tuple[int, int], verified:bool=False) -> None:
         """ 
@@ -20,6 +20,9 @@ class Vigor(Line):
         self.length=self.maxLength
         self.points = []
         self.color = (255, 255, 255)
+        self.flip = False
+        self.skip = 0
+        self.skipSpeed = 0
         self.verified = verified
         self.drawn = False
         self.drawAmount = 90
@@ -53,7 +56,7 @@ class Vigor(Line):
             # lib.drawLine(self.head, (self.head[0]-self.dx*self.length, self.head[1]-self.dy*self.length))
             #draw sin wave
             # lib.drawLine((self.startx, self.starty), (self.endx, self.endy))
-            lib.drawPoint((self.startx, self.starty), (255, 0, 0))
+            # lib.drawPoint((self.startx, self.starty), (255, 0, 0))
             # lib.drawPoint((self.endx, self.endy), (0, 255, 0))
             # self.createList(self.length)
             for i in range(1, len(self.points)):
@@ -93,9 +96,28 @@ class Vigor(Line):
 
             
 
+            #if we are outside the screen, mark ourselves for deletion 
+            #TODO make more robust, check entire line, or rect around it
+            if (lib.isOutofBounds(self.head) and lib.isOutofBounds(self.points[len(self.points)-1])):
+                self.color = (0, 0, 255)
+                #raise IndexError
+                pass
+
+            #if 0 length, delete self
+            if len(self.points) > self.length/self.speed:
+                self.points.pop()
+            if len(self.points) > self.length/self.speed and self.skipSpeed != 0:
+                self.skip -= 1 
+                if self.skip <= 0:
+                    lib.getCollision(self.head).append(self)
+                    self.skip += self.skipSpeed
+                    return    
+            if len(self.points) == 0:
+                raise IndexError
+
             #update the "real" start point, save reference for collision detection
             old = self.head
-            self.head = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
+            self.head = (self.startx + self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty - self.dx*math.sin(self.amplitude)*self.maxLength/8)
             if (self.head != old):
                 good = False
                 #do collision checks
@@ -107,36 +129,43 @@ class Vigor(Line):
                             b = ((line.end[0]-line.start[0])*(line.start[1]-old[1]) - (line.end[1]-line.start[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
                             if (0 <= a <= 1) and (0 <= b <= 1):
                                 #TODO get angle, do collision
-                                print("collision: ", line)
-                                print(set(lib.getCollision(old) + lib.getCollision(self.head)))
+                                print("collision: ", self, line)
                                 #collision
                                 intersection = (line.start[0] + a*(line.end[0]-line.start[0]), line.start[1] + (a*(line.end[1]+line.start[1])))
                                 #calculate angles
                                 otherAngle = line.angle()%math.pi
-                                selfAngle = math.atan2(self.endx-self.startx, self.endy-self.starty)
-                                diff = -2*abs(otherAngle-selfAngle)-math.pi
+                                selfAngle = math.atan2(-self.dy, -self.dx)
+                                diff = 2*(otherAngle-selfAngle)-math.pi
+                                print("angles: ", (math.degrees(otherAngle), math.degrees(selfAngle), math.degrees(diff)))
                                 #jump back 1 step (to prevent additional collisions)
+                                print(((self.startx, self.starty), (self.dx, self.dy)))
                                 self.starty -= self.speed*self.dy
                                 self.startx -= self.speed*self.dx
                                 #update start (jump to sin wave)
-                                self.startx += self.dy*math.sin(self.amplitude)*self.length/8
-                                self.starty -= self.dx*math.sin(self.amplitude)*self.length/8
+                                self.startx += self.dy*math.sin(self.amplitude)*self.maxLength/8
+                                self.starty -= self.dx*math.sin(self.amplitude)*self.maxLength/8
                                 #change dx and dy
                                 oldx = self.dx
                                 oldy = self.dy
                                 self.dx = math.cos(diff)*oldx - math.sin(diff)*oldy
                                 self.dy = math.sin(diff)*oldx + math.cos(diff)*oldy
                                 #update start again to be off the sin wave
-                                self.startx += self.dy*math.sin(self.amplitude)*self.length/8
-                                self.starty -= self.dx*math.sin(self.amplitude)*self.length/8
+                                self.startx -= self.dy*math.sin(self.amplitude)*self.maxLength/8
+                                self.starty += self.dx*math.sin(self.amplitude)*self.maxLength/8
                                 #flip amplitude
-                                self.amplitude *= -1
+                                # self.amplitude *= -1
+                                self.flip = not self.flip
+                                #step amplitude once to prevent re-colliding
+                                if self.flip:
+                                    self.amplitude = self.amplitude%(2*math.pi) + self.speed*4*math.pi/(self.maxLength)
+                                else:
+                                    self.amplitude = self.amplitude%(2*math.pi) - self.speed*4*math.pi/(self.maxLength)
                                 #update vars
                                 print(((self.startx, self.starty), (self.dx, self.dy)))
-                                print(self.head)
-                                self.length -= 1
-                                self.head = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
-                                print(self.head)
+                                cut = abs(180-math.degrees(abs(diff+math.pi)))/2+10
+                                self.skipSpeed = max(self.length/cut, 1)
+                                self.length -= cut
+                                self.head = (self.startx + self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty - self.dx*math.sin(self.amplitude)*self.maxLength/8)
                                 # good = False
                                 break
                         elif isinstance(line, Warding):
@@ -148,26 +177,20 @@ class Vigor(Line):
 
             #update list
             self.points.insert(0, self.head)
-            if len(self.points) > self.length/self.speed:
-                self.points.pop()
 
             #move
             self.starty += self.speed*self.dy
             self.startx += self.speed*self.dx
             self.endx += self.speed*self.dx
             self.endy += self.speed*self.dy
-            self.amplitude -= self.speed*4*math.pi/(self.maxLength)
-
-
-            #if we are outside the screen, mark ourselves for deletion 
-            #TODO make more robust, check entire line, or rect around it
-            if (lib.isOutofBounds(self.head) and lib.isOutofBounds((self.head[0] - self.dx*self.length, self.head[1] - self.dy*self.length))):
-                self.color = (0, 0, 255)
-                #raise IndexError
-                pass
+            if self.flip:
+                self.amplitude = self.amplitude%(2*math.pi) + self.speed*4*math.pi/(self.maxLength)
             else:
-                #add ourselves to collision (and other external stuffs)
-                pass
+                self.amplitude = self.amplitude%(2*math.pi) - self.speed*4*math.pi/(self.maxLength)
+
+
+            
+            
             lib.getCollision(self.head).append(self)
         else: #not yet drawn, just update draw amount
             if self.drawAmount == self.length:
