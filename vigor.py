@@ -26,6 +26,7 @@ class Vigor(Line):
         self.verified = verified
         self.drawn = False
         self.drawAmount = 0
+        self.reset = 0
 
         #instantiate position
         self.startx = start[0]
@@ -56,18 +57,18 @@ class Vigor(Line):
             # lib.drawLine(self.head, (self.head[0]-self.dx*self.length, self.head[1]-self.dy*self.length))
             #draw sin wave
             # lib.drawLine((self.startx, self.starty), (self.endx, self.endy))
-            # lib.drawPoint((self.startx, self.starty), (255, 0, 0))
+            lib.drawPoint((self.startx, self.starty), (255, 0, 0))
             # lib.drawPoint((self.endx, self.endy), (0, 255, 0))
             # self.createList(self.length)
-            self.drawPoints(self.length/self.speed)
+            self.drawPoints(len(self.points))
         else:
             old = self.color
             self.color += (50,)
-            self.drawPoints(self.length/self.speed)
+            self.drawPoints(len(self.points))
             self.color = old
             self.drawPoints(self.drawAmount)
 
-    def drawPoints(self, length) -> None:
+    def drawPoints(self, length: int) -> None:
         for i in range(1, int(min(len(self.points), length))):
             lib.drawLine(self.points[i-1], self.points[i], self.color)
     
@@ -103,18 +104,26 @@ class Vigor(Line):
                 self.color = (0, 0, 255)
                 #raise IndexError
                 pass
-
+    
             #if 0 length, delete self
-            if len(self.points) > self.length/self.speed:
-                self.points.pop()
-            if len(self.points) > self.length/self.speed and self.skipSpeed != 0:
-                self.skip -= 1 
-                if self.skip <= 0:
-                    lib.getCollision(self.head).append(self)
-                    self.skip += self.skipSpeed
-                    return    
             if len(self.points) == 0:
                 raise IndexError
+            if len(self.points) > self.length/self.speed:
+                self.points.pop()
+            if len(self.points) > self.length/self.speed:
+                if self.skipSpeed != 0:
+                    self.reset = 0
+                    self.skip -= 1 
+                    if self.skip <= 0:
+                        lib.getCollision(self.head).append(self)
+                        self.skip += self.skipSpeed
+                        return
+            else:
+                self.reset += 1
+                if self.reset >= len(self.points):
+                    self.skipSpeed = 0
+                    self.reset = 0
+            
 
             #update the "real" start point, save reference for collision detection
             old = self.head
@@ -139,7 +148,7 @@ class Vigor(Line):
                                 diff = (2*(otherAngle-selfAngle))
                                 print("angles: ", (math.degrees(otherAngle), math.degrees(selfAngle), math.degrees(diff)))
                                 #jump back 1 step (to prevent additional collisions)
-                                print(((self.startx, self.starty), (self.dx, self.dy)))
+                                # print(((self.startx, self.starty), (self.dx, self.dy)))
                                 self.starty -= self.speed*self.dy
                                 self.startx -= self.speed*self.dx
                                 #update start (jump to sin wave)
@@ -150,15 +159,15 @@ class Vigor(Line):
                                 oldy = self.dy
                                 self.dx = math.cos(diff)*oldx - math.sin(diff)*oldy
                                 self.dy = math.sin(diff)*oldx + math.cos(diff)*oldy
-                                #update start again to be off the sin wave
-                                self.startx -= self.dy*math.sin(self.amplitude)*self.maxLength/8
-                                self.starty += self.dx*math.sin(self.amplitude)*self.maxLength/8
+                                #update start again to be on the center point
+                                self.startx += self.dy*math.sin(self.amplitude)*self.maxLength/8
+                                self.starty -= self.dx*math.sin(self.amplitude)*self.maxLength/8
                                 #re-jump forward to not miss a step
                                 self.starty += self.speed*self.dy
                                 self.startx += self.speed*self.dx
 
                                 #flip amplitude
-                                # self.amplitude *= -1
+                                self.amplitude *= -1
                                 self.flip = not self.flip
                                 #step amplitude once to prevent re-colliding
                                 if self.flip:
@@ -166,10 +175,14 @@ class Vigor(Line):
                                 else:
                                     self.amplitude = self.amplitude%(2*math.pi) - self.speed*4*math.pi/(self.maxLength)
                                 #update vars
-                                print(((self.startx, self.starty), (self.dx, self.dy)))
-                                cut = abs(180-math.degrees(abs(diff+math.pi)))/2+10
-                                self.skipSpeed = max(self.length/cut, 1)
-                                # self.length -= cut
+                                # print(((self.startx, self.starty), (self.dx, self.dy)))
+                                cut = abs(180-math.degrees(abs(diff-math.pi)))/2+10
+                                if (self.skipSpeed == 0):
+                                    self.skipSpeed = max(100/cut, 1)
+                                else:
+                                    self.skipSpeed = max(1/(1/self.skipSpeed + cut/100), 1)
+                                print(self.skipSpeed)
+                                self.length -= cut*self.length/100
                                 self.head = (self.startx + self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty - self.dx*math.sin(self.amplitude)*self.maxLength/8)
                                 # good = False
                                 break
