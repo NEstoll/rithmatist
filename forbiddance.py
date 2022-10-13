@@ -29,7 +29,7 @@ class Forbiddance(Line):
     def update(self) -> None:
         pass
     def angle(self) -> float:
-        return math.atan2(self.start[0]-self.end[0], self.start[1] - self.end[1])
+        return math.atan2(self.start[1]-self.end[1], self.start[0] - self.end[0])
     def __repr__(self) -> str:
         return self.__str__()
     def __str__(self) -> str:

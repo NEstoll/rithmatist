@@ -136,7 +136,7 @@ class Vigor(Line):
                                 #calculate angles
                                 otherAngle = line.angle()%math.pi
                                 selfAngle = math.atan2(-self.dy, -self.dx)
-                                diff = 2*(otherAngle-selfAngle)-math.pi
+                                diff = (2*(otherAngle-selfAngle))
                                 print("angles: ", (math.degrees(otherAngle), math.degrees(selfAngle), math.degrees(diff)))
                                 #jump back 1 step (to prevent additional collisions)
                                 print(((self.startx, self.starty), (self.dx, self.dy)))
