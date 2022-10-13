@@ -134,4 +134,4 @@ class Server:
 
 if __name__ == "__main__":
     server = Server()
-    server.setup()
+    server.setup("10.243.0.6")

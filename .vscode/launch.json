@@ -25,7 +25,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/client.py",
-            "args": ["localhost", "33514"],
+            "args": ["10.243.0.6", "33514"],
             "console": "integratedTerminal",
             "justMyCode": true
         }
