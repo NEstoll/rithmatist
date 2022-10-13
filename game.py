@@ -59,6 +59,7 @@ if __name__ == "__main__": #temp runner code
     
     running = True
     start = None
+    button = None
     while running:
         for evt in lib.pygame.event.get(): #todo, add event handling to seperate class/game class
             if evt.type == lib.pygame.quit:
@@ -66,10 +67,20 @@ if __name__ == "__main__": #temp runner code
                 running = False
                 break
             elif evt.type == lib.pygame.MOUSEBUTTONDOWN:
+                #starting to draw a line
                 start = lib.screenToGame(lib.pygame.mouse.get_pos())
+                button = lib.pygame.mouse.get_pressed()
             elif evt.type == lib.pygame.MOUSEBUTTONUP and start != None:
-                game.objects.append(Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()), True))
-                start = None
+                #line drawn
+                if button[0]:
+                    line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                elif button[2]:
+                    line = Forbiddance(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                else:
+                    # line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                    continue
+                game.objects.append(line)
+                start = None 
             else:
                 if lib.pygame.key.get_pressed()[lib.pygame.K_SPACE]:
                     # game.update()
