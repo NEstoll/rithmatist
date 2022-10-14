@@ -3,7 +3,7 @@ import math
 import lib
 from line import Line
 from warding import Warding
-from forbiddance import Forbiddance
+from forbiddance import Forbiddance, Segment
 
 class Vigor(Line):
     #global vars
@@ -106,10 +106,10 @@ class Vigor(Line):
                 pass
     
             #if 0 length, delete self
-            if len(self.points) == 0:
-                raise IndexError
             if len(self.points) > self.length/self.speed:
                 self.points.pop()
+            if len(self.points) == 0:
+                raise IndexError
             if len(self.points) > self.length/self.speed:
                 if self.skipSpeed != 0:
                     self.reset = 0
@@ -134,7 +134,7 @@ class Vigor(Line):
                 while not good:
                     good = True
                     for line in set(lib.getCollision(old) + lib.getCollision(self.head)):
-                        if isinstance(line, Forbiddance):
+                        if isinstance(line, Segment):
                             a = ((self.head[0]-old[0])*(line.start[1]-old[1]) - (self.head[1]-old[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
                             b = ((line.end[0]-line.start[0])*(line.start[1]-old[1]) - (line.end[1]-line.start[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
                             if (0 <= a <= 1) and (0 <= b <= 1):
@@ -176,13 +176,17 @@ class Vigor(Line):
                                     self.amplitude = self.amplitude%(2*math.pi) - self.speed*4*math.pi/(self.maxLength)
                                 #update vars
                                 # print(((self.startx, self.starty), (self.dx, self.dy)))
-                                cut = abs(180-math.degrees(abs(diff-math.pi)))/2+10
+                                cut = abs(180-math.degrees(abs(diff)-math.pi))/2+10
+                                cut = cut/100
+                                cut *= self.maxLength
+                                #TODO change damage based on size/frequency/wavelength
+                                line.dmg(cut/self.maxLength)
                                 if (self.skipSpeed == 0):
-                                    self.skipSpeed = max(100/cut, 1)
+                                    self.skipSpeed = max(self.length/cut, 1)
                                 else:
-                                    self.skipSpeed = max(1/(1/self.skipSpeed + cut/100), 1)
-                                print(self.skipSpeed)
-                                self.length -= cut*self.length/100
+                                    self.skipSpeed = max(1/(1/self.skipSpeed + cut/self.length), 1)
+                                self.length -= cut
+                                print(cut, self.skipSpeed, self.length)
                                 self.head = (self.startx + self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty - self.dx*math.sin(self.amplitude)*self.maxLength/8)
                                 # good = False
                                 break
