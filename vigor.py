@@ -103,15 +103,15 @@ class Vigor(Line):
                 #TODO make more robust, check entire line, or rect around it
                 if (lib.isOutofBounds(self.head) and lib.isOutofBounds(self.points[len(self.points)-1])):
                     self.color = (0, 0, 255)
-                    #raise IndexError
+                    raise lib.LineOutofBounds
                     pass
         
                 #if 0 length, delete self
                 if len(self.points) > self.length:
                     self.points.pop()
                 if len(self.points) == 0:
-                    raise IndexError
-                if len(self.points) > self.length:
+                    raise lib.LineOutofBounds
+                if len(self.points) > self.length: #TODO refactor, make line slow down while in contact with line, else normal speed
                     if self.skipSpeed != 0:
                         self.reset = 0
                         self.skip -= 1 

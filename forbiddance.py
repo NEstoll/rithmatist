@@ -1,4 +1,5 @@
 import math
+from os import remove
 from line import Line
 import lib
 
@@ -24,15 +25,37 @@ class Forbiddance(Line):
         
         #add segments to collision
         for s in self.segments:
-            collision1 = lib.getCollision(s.start)
-            collision2 = lib.getCollision(s.end)
-            if (collision1 != collision2):
-                lib.getCollision((s.start[0], s.end[1])).append(s)
-                lib.getCollision((s.end[0], s.start[1])).append(s)
-            collision1.append(s)
-            collision2.append(s)
-            
-        
+            self.addCollision(s)
+
+    @staticmethod      
+    def addCollision(segment):
+        collision1 = lib.getCollision(segment.start)
+        collision2 = lib.getCollision(segment.end)
+        if (collision1 != collision2):
+            collision3 = lib.getCollision((segment.start[0], segment.end[1]))
+            collision4 = lib.getCollision((segment.end[0], segment.start[1]))
+            if (collision3 != collision1 and collision3 != collision2):
+                collision3.append(segment)
+                collision4.append(segment) #must be 4 distinct, can't have only 3 collision boxes
+            collision1.append(segment)
+            collision2.append(segment)
+        else:
+            collision1.append(segment)
+
+    @staticmethod      
+    def removeCollision(segment):
+        collision1 = lib.getCollision(segment.start)
+        collision2 = lib.getCollision(segment.end)
+        if (collision1 != collision2):
+            collision3 = lib.getCollision((segment.start[0], segment.end[1]))
+            collision4 = lib.getCollision((segment.end[0], segment.start[1]))
+            if (collision3 != collision1 and collision3 != collision2):
+                collision3.remove(segment)
+                collision4.remove(segment) #must be 4 distinct, can't have only 3 collision boxes
+            collision1.remove(segment)
+            collision2.remove(segment)
+        else:
+            collision1.remove(segment)
 
 
     def draw(self) -> None:
@@ -41,8 +64,17 @@ class Forbiddance(Line):
             s.draw()
         lib.drawPoint(self.end, (255, 0, 0))
     def update(self) -> None:
+        remove = []
         for s in self.segments:
-            s.update()
+            try:
+                s.update()
+            except lib.LineOutofBounds:
+                remove.append(s)
+                #TODO refactor collision to be better
+                self.removeCollision(s)
+                pass
+        for s in remove:
+            self.segments.remove(s)
 
 
     def __repr__(self) -> str:
@@ -61,7 +93,8 @@ class Segment(Line):
     def draw(self) -> None:
         lib.drawLine(self.start, self.end, self.color+(max(255-(self.damage*2.55),0),))
     def update(self) -> None:
-        pass
+        if self.damage >= 100:
+            raise lib.LineOutofBounds
     def dmg(self, amount):
         self.damage += amount*100/4
 

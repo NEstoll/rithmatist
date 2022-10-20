@@ -50,3 +50,5 @@ for i in range(0, collisionNum):
     for j in range(0, collisionNum):
         collision[i].append([])
 
+class LineOutofBounds(Exception):
+    pass

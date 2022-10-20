@@ -21,7 +21,7 @@ class Game:
         for o in reversed(self.objects):
             try:
                 o.update()
-            except IndexError:
+            except lib.LineOutofBounds:
                 self.objects.remove(o)
 
     def isRunning(self) -> bool:
