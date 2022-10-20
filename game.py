@@ -3,6 +3,7 @@ import lib
 
 from forbiddance import Forbiddance
 from vigor import Vigor
+from warding import Warding
 
 class Game:
     # Instance of a game
@@ -35,7 +36,7 @@ class Game:
             o.draw()
         for o in self.undrawn:
             o.draw()
-        # lib.collisionBoxes()
+        lib.collisionBoxes()
         frame = lib.pygame.transform.smoothscale(lib.renderSurface, lib.displaySize())
         display.blit(frame, frame.get_rect())
         lib.pygame.display.flip()
@@ -56,6 +57,8 @@ if __name__ == "__main__": #temp runner code
     game.objects.append(Vigor((500, 700), (500, 1000), True))
     # game.objects.append(Vigor((600, 300), (800, 300), True))
     # game.objects.append(Vigor((300, 300), (400, 200), True))
+    game.objects.append(Warding((1500, 800), 100))
+
     game.draw(pygame.display.get_surface())
     
     running = True

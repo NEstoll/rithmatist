@@ -8,7 +8,7 @@ from forbiddance import Forbiddance, Segment
 class Vigor(Line):
     #global vars
     maxLength = 1000
-    speed = 10
+    speed = 2
     
     def __init__(self, start : tuple[int, int], end: tuple[int, int], verified:bool=True) -> None:
         """ 
@@ -193,7 +193,10 @@ class Vigor(Line):
                                     break
                             elif isinstance(line, Warding):
                                 if math.dist((self.head[0], self.head[1]), (line.centerx, line.centery)) <= line.radius:
-                                    #collision
+                                    print("collision: ", line)
+                                    line.dmg(self.head, self.length)
+                                    self.length = 0
+                                    self.skipSpeed = 1
                                     pass
                                 pass
                 #TODO check for multiple collisions
