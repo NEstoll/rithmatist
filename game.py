@@ -29,7 +29,7 @@ class Game:
         return True
 
     def draw(self, display) -> None:
-        #update and draw each object, and then handle render -> display trasform
+        #draw each object, and then handle render -> display trasform
         lib.renderSurface.fill(0)
         display.fill(0)
         for o in self.objects:
