@@ -8,7 +8,7 @@ class Warding(Line):
         super().__init__()
         #initialize variables
         self.color = (255, 255, 255)
-        self.dmg = 0
+        self.damage = 0
         self.segments = [0 for i in range(0, Warding.maxSegments)]
         self.inscribedTriangle = 0
         #location
@@ -25,7 +25,7 @@ class Warding(Line):
                 collision = next
         collision.append(self)
 
-    def dmg(self, location, amount):
+    def dmg(self, location, amount) -> None:
         self.segments[0] = amount
 
     def draw(self) -> None:
@@ -34,5 +34,5 @@ class Warding(Line):
         for i in range(0, len(self.segments)):
             next = (self.centerx + self.radius*math.cos((i+1)*2*math.pi/Warding.maxSegments), self.centery + self.radius*math.sin((i+1)*2*math.pi/Warding.maxSegments))
             lib.drawLine(prev, next, self.color)
-            lib.drawLine((self.centerx, self.centery), prev, (max(255-self.dmg, 0), 0, 0))
+            lib.drawLine((self.centerx, self.centery), prev, (max(255-self.damage, 0), 0, 0))
             prev = next

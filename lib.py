@@ -2,7 +2,7 @@
 import pygame
 
 #drawing functions
-def drawLine(start :tuple[float, float], end : tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)) -> None:
+def drawLine(start :tuple[float, float], end : tuple[float, float], color=(255, 255, 255)) -> None:
     pygame.draw.line(renderSurface, color, start, end, 3)
 def drawPoint(center: tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)) -> None:
     pygame.draw.circle(renderSurface, color, center, 3)
