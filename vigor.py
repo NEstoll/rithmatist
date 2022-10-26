@@ -10,7 +10,7 @@ class Vigor(Line):
     maxLength = 1000
     speed = 2
     
-    def __init__(self, start : tuple[int, int], end: tuple[int, int], verified:bool=True) -> None:
+    def __init__(self, start : tuple[int, int], end: tuple[int, int], drawn:bool=False) -> None:
         """ 
             Creates Line of Vigor, extending in a sin wave from start to end
             Start is the only place with collision, and is the "head" of the line
@@ -23,12 +23,15 @@ class Vigor(Line):
         self.flip = False
         self.skip = 0
         self.skipSpeed = 0
-        self.verified = verified
-        self.drawn = False
+        self.verified = True
+        self.drawn = drawn
         self.drawAmount = 0
         self.reset = 0
         self.step = self.speed
 
+        self.instantiate(start, end)
+
+    def instantiate(self, start, end) -> None:
         #instantiate position
         self.startx = start[0]
         self.starty = start[1]
@@ -76,6 +79,7 @@ class Vigor(Line):
 
 
     def createList(self, length) -> None:
+        self.points.clear()
         # prev = (self.startx - -self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty + -self.dx*math.sin(self.amplitude)*self.maxLength/8)
         slope = (self.dx, self.dy)
         for i in range(1, length+1):

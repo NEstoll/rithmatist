@@ -1,5 +1,4 @@
 import pygame
-from client import Client
 import lib
 
 from forbiddance import Forbiddance
@@ -16,7 +15,7 @@ class Game:
     def __init__(self) -> None:
         #variable instantiation
         self.objects = []
-        self.undrawn = []
+        self.drawOnly = []
         self.players = []
         self.time = 0
 
@@ -28,15 +27,16 @@ class Game:
             except lib.LineOutofBounds:
                 self.objects.remove(o)
 
-    def createLine(self, line: Line, player: Player):
+    def createLine(self, line: Line, player: Player) -> bool:
         if not player in self.players:
             return False
         else:
             #TODO check if player can draw line
             self.objects.append(line)
+            return True
 
-    def addPlayer(self) -> int:
-        self.players.append(None)
+    def addPlayer(self, player) -> int:
+        self.players.append(player)
         return self.players.index(player)
 
 
@@ -47,11 +47,12 @@ class Game:
         #draw each object, and then handle render -> display trasform
         lib.renderSurface.fill(0)
         display.fill(0)
+        lib.drawPoint(lib.screenToGame(lib.pygame.mouse.get_pos()))
         for o in self.objects:
             o.draw()
-        for o in self.undrawn:
+        for o in self.drawOnly:
             o.draw()
-        lib.collisionBoxes()
+        # lib.collisionBoxes()
         frame = lib.pygame.transform.smoothscale(lib.renderSurface, lib.displaySize())
         display.blit(frame, frame.get_rect())
         lib.pygame.display.flip()
@@ -72,14 +73,15 @@ if __name__ == "__main__": #temp runner code
     game.objects.append(Vigor((500, 700), (500, 1000), True))
     # game.objects.append(Vigor((600, 300), (800, 300), True))
     # game.objects.append(Vigor((300, 300), (400, 200), True))
-    game.objects.append(Warding((1500, 800), 100))
+    # game.objects.append(Warding((1500, 800), 100))
 
     game.draw(pygame.display.get_surface())
-    player = game.addPlayer()
+    player = Player(Warding((1500, 800), 100))
+    game.addPlayer(player)
     
     running = True
-    start = None
-    button = None
+    start = (0, 0)
+    currLine = None
     prevMouse = None
     while running:
         for evt in lib.pygame.event.get(): #todo, add event handling to seperate class/game class
@@ -90,27 +92,34 @@ if __name__ == "__main__": #temp runner code
             elif evt.type == lib.pygame.MOUSEBUTTONDOWN:
                 #starting to draw a line
                 start = lib.screenToGame(lib.pygame.mouse.get_pos())
-                button = lib.pygame.mouse.get_pressed()
-            elif evt.type == lib.pygame.MOUSEBUTTONUP and start != None:
-                #line drawn
-                line = None
-                if button is not None:
-                    if button[0]:
-                        line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
-                    elif button[2]:
-                        line = Forbiddance(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                buttons = lib.pygame.mouse.get_pressed()
+                if buttons is not None:
+                    if buttons[0]:
+                        currLine = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                        game.drawOnly.append(currLine)
+                    elif buttons[2]:
+                        currLine = Forbiddance(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                        game.drawOnly.append(currLine)
                     else:
-                        # line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                        currLine = None
                         continue
-                game.objects.append(line)
-                start = None 
+            elif evt.type == lib.pygame.MOUSEBUTTONUP and currLine != None:
+                #line drawn
+                game.createLine(currLine, player)
+                game.drawOnly.remove(currLine)
+                currLine = None
             elif evt.type == lib.pygame.MOUSEMOTION:
+                #handle mouse motion
                 if prevMouse is not None:
-                    lib.getCollision(lib.screenToGame(prevMouse))
-
-
-                
+                    #handle collision with LoF
+                    pass
                 prevMouse = lib.pygame.mouse.get_pos()
+                
+
+                #update line
+                if currLine is not None:
+                    currLine.instantiate(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                    
 
             else:
                 if lib.pygame.key.get_pressed()[lib.pygame.K_SPACE]:

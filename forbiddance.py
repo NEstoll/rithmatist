@@ -10,16 +10,25 @@ class Forbiddance(Line):
     def __init__(self, start : tuple[int, int], end: tuple[int, int]) -> None:
         super().__init__()
         #initialize variables
+        self.color = (255, 255, 255)
+        self.segments = []
+        
+        self.instantiate(start, end)
+
+    def instantiate(self, start, end) -> None:
+
         self.start = start
         self.end = end
-        self.color = (255, 255, 255)
 
         #math
         slopex = (end[0]-start[0])/Forbiddance.maxSegments
         slopey = (end[1]-start[1])/Forbiddance.maxSegments
 
         #create segments
-        self.segments = []
+        if len(self.segments) != 0:
+            for s in self.segments:
+                self.removeCollision(s)
+            self.segments = []
         for i in range(0, Forbiddance.maxSegments):
             self.segments.append(Segment((start[0]+slopex*i, start[1]+slopey*i), (start[0]+slopex*(i+1), start[1]+slopey*(i+1))))
         
