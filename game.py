@@ -35,8 +35,8 @@ class Game:
             #TODO check if player can draw line
             self.objects.append(line)
 
-    def addPlayer(self, player):
-        self.players.append(player)
+    def addPlayer(self) -> int:
+        self.players.append(None)
         return self.players.index(player)
 
 
@@ -106,9 +106,10 @@ if __name__ == "__main__": #temp runner code
                 start = None 
             elif evt.type == lib.pygame.MOUSEMOTION:
                 if prevMouse is not None:
-                    pass
+                    lib.getCollision(lib.screenToGame(prevMouse))
+
+
                 
-                lib.getCollision(prevMouse).remove()
                 prevMouse = lib.pygame.mouse.get_pos()
 
             else:
