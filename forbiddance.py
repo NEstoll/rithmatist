@@ -5,7 +5,7 @@ import lib
 
 
 class Forbiddance(Line):
-    segments = 100
+    maxSegments = 100
 
     def __init__(self, start : tuple[int, int], end: tuple[int, int]) -> None:
         super().__init__()
@@ -15,12 +15,12 @@ class Forbiddance(Line):
         self.color = (255, 255, 255)
 
         #math
-        slopex = (end[0]-start[0])/Forbiddance.segments
-        slopey = (end[1]-start[1])/Forbiddance.segments
+        slopex = (end[0]-start[0])/Forbiddance.maxSegments
+        slopey = (end[1]-start[1])/Forbiddance.maxSegments
 
         #create segments
         self.segments = []
-        for i in range(0, Forbiddance.segments):
+        for i in range(0, Forbiddance.maxSegments):
             self.segments.append(Segment((start[0]+slopex*i, start[1]+slopey*i), (start[0]+slopex*(i+1), start[1]+slopey*(i+1))))
         
         #add segments to collision
@@ -28,7 +28,7 @@ class Forbiddance(Line):
             self.addCollision(s)
 
     @staticmethod      
-    def addCollision(segment):
+    def addCollision(segment) -> None:
         collision1 = lib.getCollision(segment.start)
         collision2 = lib.getCollision(segment.end)
         if (collision1 != collision2):
@@ -95,7 +95,7 @@ class Segment(Line):
     def update(self) -> None:
         if self.damage >= 100:
             raise lib.LineOutofBounds
-    def dmg(self, amount):
+    def dmg(self, amount) -> None:
         self.damage += amount*100/4
 
 

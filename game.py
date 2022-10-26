@@ -93,14 +93,16 @@ if __name__ == "__main__": #temp runner code
                 button = lib.pygame.mouse.get_pressed()
             elif evt.type == lib.pygame.MOUSEBUTTONUP and start != None:
                 #line drawn
-                if button[0]:
-                    line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
-                elif button[2]:
-                    line = Forbiddance(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
-                else:
-                    # line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
-                    continue
-                game.createLine(line, player)
+                line = None
+                if button is not None:
+                    if button[0]:
+                        line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                    elif button[2]:
+                        line = Forbiddance(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                    else:
+                        # line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                        continue
+                game.objects.append(line)
                 start = None 
             elif evt.type == lib.pygame.MOUSEMOTION:
                 if prevMouse is not None:
