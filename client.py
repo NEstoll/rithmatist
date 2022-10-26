@@ -10,7 +10,7 @@ from line import Line
 from vigor import Vigor
 from warding import Warding
 
-class Player:
+class Client:
     #server instance of the game
     #authoritative copy of the game
     #validates player commands (anti-cheat)
@@ -33,16 +33,16 @@ class Player:
 
     def parseInput(self, socket:socketLib.socket) -> None:
         data = b''
-        msg = socket.recv(Player.maxBytes)
+        msg = socket.recv(Client.maxBytes)
         print("data recieved", msg, len(msg))
         while not msg == b'':
             data = msg.join([data, b''])
-            if len(data) >= Player.maxBytes:
-                print("line recieved", list(data[:Player.maxBytes]))
-                self.game.objects.append(self.parseMessage(data[:Player.maxBytes]))
-                data = data[Player.maxBytes:]
+            if len(data) >= Client.maxBytes:
+                print("line recieved", list(data[:Client.maxBytes]))
+                self.game.objects.append(self.parseMessage(data[:Client.maxBytes]))
+                data = data[Client.maxBytes:]
                 print(self.game.objects)
-            msg = socket.recv(Player.maxBytes-len(data))
+            msg = socket.recv(Client.maxBytes-len(data))
         raise RuntimeError("socket broke")
 
     def parseMessage(self, data:bytes) -> Line:
@@ -113,7 +113,7 @@ class Player:
 
     def sendLine(self, line:Line) -> None:
         print(line.toBytes(), ":::", self.parseMessage(line.toBytes()))
-        data = line.toBytes().ljust(Player.maxBytes, b'\x00')
+        data = line.toBytes().ljust(Client.maxBytes, b'\x00')
         print(data, "::::", self.parseMessage(data))
         sent = 0
         while sent < len(data):
@@ -125,7 +125,7 @@ class Player:
 
 
 if __name__ == "__main__":
-    localPlayer = Player()
+    localPlayer = Client()
     if (len(sys.argv) == 2):
         localPlayer.connect(sys.argv[1])
     elif (len(sys.argv) == 3):

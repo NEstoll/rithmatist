@@ -1,7 +1,10 @@
 import pygame
+from client import Client
 import lib
 
 from forbiddance import Forbiddance
+from line import Line
+from player import Player
 from vigor import Vigor
 from warding import Warding
 
@@ -15,6 +18,7 @@ class Game:
         #variable instantiation
         self.objects = []
         self.undrawn = []
+        self.players = []
         self.time = 0
 
     def update(self) -> None:
@@ -24,6 +28,13 @@ class Game:
                 o.update()
             except lib.LineOutofBounds:
                 self.objects.remove(o)
+
+    def createLine(self, line: Line, player: Player):
+        if not player in self.players:
+            return False
+        else:
+            pass
+
 
     def isRunning(self) -> bool:
         return True
