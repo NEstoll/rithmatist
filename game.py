@@ -12,7 +12,6 @@ class Game:
     # Instance of a game
     # Holds references to all currently instantiated game objects
     # No distinction between server/client
-    # TODO seperate graphics code/make optional
 
     def __init__(self) -> None:
         #variable instantiation
@@ -33,7 +32,12 @@ class Game:
         if not player in self.players:
             return False
         else:
-            pass
+            #TODO check if player can draw line
+            self.objects.append(line)
+
+    def addPlayer(self, player):
+        self.players.append(player)
+        return self.players.index(player)
 
 
     def isRunning(self) -> bool:
@@ -71,10 +75,12 @@ if __name__ == "__main__": #temp runner code
     game.objects.append(Warding((1500, 800), 100))
 
     game.draw(pygame.display.get_surface())
+    player = game.addPlayer()
     
     running = True
     start = None
     button = None
+    prevMouse = None
     while running:
         for evt in lib.pygame.event.get(): #todo, add event handling to seperate class/game class
             if evt.type == lib.pygame.quit:
@@ -94,8 +100,15 @@ if __name__ == "__main__": #temp runner code
                 else:
                     # line = Vigor(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
                     continue
-                game.objects.append(line)
+                game.createLine(line, player)
                 start = None 
+            elif evt.type == lib.pygame.MOUSEMOTION:
+                if prevMouse is not None:
+                    pass
+                
+                lib.getCollision(prevMouse).remove()
+                prevMouse = lib.pygame.mouse.get_pos()
+
             else:
                 if lib.pygame.key.get_pressed()[lib.pygame.K_SPACE]:
                     # game.update()
