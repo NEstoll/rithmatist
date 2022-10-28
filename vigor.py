@@ -221,10 +221,10 @@ class Vigor(Line):
                     elif isinstance(line, Warding):
                         if math.dist((self.head[0], self.head[1]), (line.centerx, line.centery)) <= line.radius:
                             print("collision: ", line)
-                            line.dmg(self.head, self.length)
+                            line.dmg((self.head, old), self.length) #TODO change how dmg works
                             self.length = 0
                             self.skipSpeed = 1
-                            pass
+                            break
                         pass
 
 

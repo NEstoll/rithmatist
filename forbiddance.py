@@ -1,5 +1,4 @@
 import math
-from os import remove
 from line import Line
 import lib
 
@@ -27,23 +26,23 @@ class Forbiddance(Line):
         #create segments
         if len(self.segments) != 0:
             for s in self.segments:
-                self.removeCollision(s)
+                Forbiddance.removeCollision(s)
             self.segments = []
         for i in range(0, Forbiddance.maxSegments):
             self.segments.append(Segment((start[0]+slopex*i, start[1]+slopey*i), (start[0]+slopex*(i+1), start[1]+slopey*(i+1))))
         
         #add segments to collision
         for s in self.segments:
-            self.addCollision(s)
+            Forbiddance.addCollision(s)
 
     @staticmethod      
     def addCollision(segment) -> None:
         collision1 = lib.getCollision(segment.start)
         collision2 = lib.getCollision(segment.end)
-        if (collision1 != collision2):
+        if (collision1 is not collision2):
             collision3 = lib.getCollision((segment.start[0], segment.end[1]))
             collision4 = lib.getCollision((segment.end[0], segment.start[1]))
-            if (collision3 != collision1 and collision3 != collision2):
+            if (collision3 is not collision1 and collision3 is not collision2):
                 collision3.append(segment)
                 collision4.append(segment) #must be 4 distinct, can't have only 3 collision boxes
             collision1.append(segment)
@@ -55,10 +54,10 @@ class Forbiddance(Line):
     def removeCollision(segment):
         collision1 = lib.getCollision(segment.start)
         collision2 = lib.getCollision(segment.end)
-        if (collision1 != collision2):
+        if (collision1 is not collision2):
             collision3 = lib.getCollision((segment.start[0], segment.end[1]))
             collision4 = lib.getCollision((segment.end[0], segment.start[1]))
-            if (collision3 != collision1 and collision3 != collision2):
+            if (collision3 is not collision1 and collision3 is not collision2):
                 collision3.remove(segment)
                 collision4.remove(segment) #must be 4 distinct, can't have only 3 collision boxes
             collision1.remove(segment)

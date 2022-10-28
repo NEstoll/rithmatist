@@ -24,8 +24,14 @@ class Warding(Line):
                 collision = next
         collision.append(self)
 
-    def dmg(self, location, amount) -> None:
-        self.segments[0] = amount
+    def dmg(self, line, amount) -> None:
+        angle1 = math.atan2(self.centery-line[0][1], self.centerx-line[0][0])+math.pi
+        angle2 = math.atan2(self.centery-line[1][1], self.centerx-line[1][0])+math.pi
+        seg1 = math.floor(angle1*Warding.maxSegments/(2*math.pi))
+        seg2 = math.floor(angle2*Warding.maxSegments/(2*math.pi))
+        self.segments[seg1] = 200
+        self.segments[seg2] = 200
+        print("angles: ", (math.degrees(angle1), math.degrees(angle2)))
 
     def draw(self) -> None:
         super().draw()
