@@ -166,51 +166,48 @@ class Vigor(Line):
                 good = True
                 for line in set(lib.getCollision(old) + lib.getCollision(self.head)):
                     if isinstance(line, Segment):
-                        a = ((self.head[0]-old[0])*(line.start[1]-old[1]) - (self.head[1]-old[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
-                        b = ((line.end[0]-line.start[0])*(line.start[1]-old[1]) - (line.end[1]-line.start[1])*(line.start[0]-old[0])) / ((self.head[1]-old[1])*(line.end[0]-line.start[0]) - (self.head[0]-old[0])*(line.end[1]-line.start[1]))
-                        if (0 <= a <= 1) and (0 <= b <= 1):
-                                    #TODO get angle, do collision
+                        if lib.linesColliding((self.head, old), (line.start, line.end)) is not None:
+                            #TODO get angle, do collision
                             print("collision: ", self, line)
-                                    #collision
-                            intersection = (line.start[0] + a*(line.end[0]-line.start[0]), line.start[1] + (a*(line.end[1]+line.start[1])))
-                                    #calculate angles
+                            #collision
+                            #calculate angles
                             otherAngle = line.angle()%math.pi
                             selfAngle = math.atan2(-self.dy, -self.dx)
                             diff = (2*(otherAngle-selfAngle))
                             print("angles: ", (math.degrees(otherAngle), math.degrees(selfAngle), math.degrees(diff)))
-                                    #jump back 1 step (to prevent additional collisions)
-                                    # print(((self.startx, self.starty), (self.dx, self.dy)))
+                            #jump back 1 step (to prevent additional collisions)
+                            # print(((self.startx, self.starty), (self.dx, self.dy)))
                             self.starty -= self.dy
                             self.startx -= self.dx
-                                    #update start (jump to sin wave)
+                            #update start (jump to sin wave)
                             self.startx += self.dy*math.sin(self.amplitude)*self.maxLength/8
                             self.starty -= self.dx*math.sin(self.amplitude)*self.maxLength/8
-                                    #change dx and dy
+                            #change dx and dy
                             oldx = self.dx
                             oldy = self.dy
                             self.dx = math.cos(diff)*oldx - math.sin(diff)*oldy
                             self.dy = math.sin(diff)*oldx + math.cos(diff)*oldy
-                                    #update start again to be on the center point
+                            #update start again to be on the center point
                             self.startx += self.dy*math.sin(self.amplitude)*self.maxLength/8
                             self.starty -= self.dx*math.sin(self.amplitude)*self.maxLength/8
-                                    #re-jump forward to not miss a step
+                            #re-jump forward to not miss a step
                             self.starty += self.dy
                             self.startx += self.dx
 
-                                    #flip amplitude
+                            #flip amplitude
                             self.amplitude *= -1
                             self.flip = not self.flip
-                                    #step amplitude once to prevent re-colliding
+                            #step amplitude once to prevent re-colliding
                             if self.flip:
                                 self.amplitude = self.amplitude%(2*math.pi) + 4*math.pi/(self.maxLength)
                             else:
                                 self.amplitude = self.amplitude%(2*math.pi) - 4*math.pi/(self.maxLength)
-                                    #update vars
-                                    # print(((self.startx, self.starty), (self.dx, self.dy)))
+                            #update vars
+                            # print(((self.startx, self.starty), (self.dx, self.dy)))
                             cut = abs(180-math.degrees(abs(diff)-math.pi))/2+10
                             cut = cut/100
                             cut *= self.maxLength
-                                    #TODO change damage based on size/frequency/wavelength
+                            #TODO change damage based on size/frequency/wavelength
                             line.dmg(cut/self.maxLength)
                             if (self.skipSpeed == 0):
                                 self.skipSpeed = max(self.length/cut, 1)
@@ -219,7 +216,7 @@ class Vigor(Line):
                             self.length -= cut
                             print(cut, self.skipSpeed, self.length)
                             self.head = (self.startx + self.dy*math.sin(self.amplitude)*self.maxLength/8,self.starty - self.dx*math.sin(self.amplitude)*self.maxLength/8)
-                                    # good = False
+                            # good = False
                             break
                     elif isinstance(line, Warding):
                         if math.dist((self.head[0], self.head[1]), (line.centerx, line.centery)) <= line.radius:

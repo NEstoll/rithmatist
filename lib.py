@@ -17,6 +17,15 @@ def display() -> pygame.surface.Surface:
 def events() -> list[pygame.event.Event]:
     return pygame.event.get()
 
+def linesColliding(line1:tuple[tuple[float, float], tuple[float, float]], line2:tuple[tuple[float, float], tuple[float, float]]) -> tuple[float, float] | None:
+    a = ((line1[0][0]-line1[1][0])*(line2[0][1]-line1[1][1]) - (line1[0][1]-line1[1][1])*(line2[0][0]-line1[1][0])) / ((line1[0][1]-line1[1][1])*(line2[1][0]-line2[0][0]) - (line1[0][0]-line1[1][0])*(line2[1][1]-line2[0][1]))
+    b = ((line2[1][0]-line2[0][0])*(line2[0][1]-line1[1][1]) - (line2[1][1]-line2[0][1])*(line2[0][0]-line1[1][0])) / ((line1[0][1]-line1[1][1])*(line2[1][0]-line2[0][0]) - (line1[0][0]-line1[1][0])*(line2[1][1]-line2[0][1]))
+    if (0 <= a <= 1) and (0 <= b <= 1):
+        intersection = (line2[0][0] + a*(line2[1][0]-line2[0][0]), line2[0][1] + (a*(line2[1][1]+line2[0][1])))
+        return intersection
+    else:
+        return None
+
 def getCollision(position: tuple[float, float]) -> list:
     if (isOutofBounds(position)):
         return OoB
