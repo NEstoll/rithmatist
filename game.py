@@ -73,7 +73,7 @@ if __name__ == "__main__": #temp runner code
     # game.objects.append(Vigor((500, 700), (500, 1000), True))
     # game.objects.append(Vigor((600, 300), (800, 300), True))
     # game.objects.append(Vigor((300, 300), (400, 200), True))
-    game.objects.append(Warding((1500, 800), 100))
+    game.objects.append(Warding((1000, 500), 500))
     game.objects.append(Vigor((1800, 800), (2000, 800)))
 
     game.draw(pygame.display.get_surface())
