@@ -1,7 +1,7 @@
 import pygame
 import lib
 
-from forbiddance import Forbiddance
+from forbiddance import Forbiddance, Segment
 from line import Line
 from player import Player
 from vigor import Vigor
@@ -47,12 +47,13 @@ class Game:
         #draw each object, and then handle render -> display trasform
         lib.renderSurface.fill(0)
         display.fill(0)
+        #TODO add real cursor (default can't be moved)
         lib.drawPoint(lib.screenToGame(lib.pygame.mouse.get_pos()))
         for o in self.objects:
             o.draw()
         for o in self.drawOnly:
             o.draw()
-        # lib.collisionBoxes()
+        lib.collisionBoxes()
         frame = lib.pygame.transform.smoothscale(lib.renderSurface, lib.displaySize())
         display.blit(frame, frame.get_rect())
         lib.pygame.display.flip()
@@ -63,8 +64,9 @@ class Game:
 if __name__ == "__main__": #temp runner code
     pygame.init()
     pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+    pygame.mouse.set_visible(False)
     game = Game()
-    # game.objects.append(Forbiddance((100, 300), (300, 100)))
+    game.objects.append(Forbiddance((100, 300), (300, 100)))
     # game.objects.append(Forbiddance((200, 200), (200, 600)))
     # game.objects.append(Forbiddance((400, 600), (1900, 600)))
     # game.objects.append(Forbiddance((600, 600), (600, 200)))
@@ -74,7 +76,7 @@ if __name__ == "__main__": #temp runner code
     # game.objects.append(Vigor((600, 300), (800, 300), True))
     # game.objects.append(Vigor((300, 300), (400, 200), True))
     game.objects.append(Warding((1500, 800), 100))
-    game.objects.append(Vigor((1800, 800), (2000, 800)))
+    # game.objects.append(Vigor((1800, 800), (2000, 800)))
 
     game.draw(pygame.display.get_surface())
     player = Player(Warding((1500, 800), 100))
@@ -100,21 +102,33 @@ if __name__ == "__main__": #temp runner code
                         game.drawOnly.append(currLine)
                     elif buttons[2]:
                         currLine = Forbiddance(start, lib.screenToGame(lib.pygame.mouse.get_pos()))
+                        currLine.setCollision(False)
                         game.drawOnly.append(currLine)
                     else:
                         currLine = None
                         continue
             elif evt.type == lib.pygame.MOUSEBUTTONUP and currLine != None:
                 #line drawn
+                if isinstance(currLine, Forbiddance):
+                    currLine.setCollision(True)
                 game.createLine(currLine, player)
                 game.drawOnly.remove(currLine)
                 currLine = None
             elif evt.type == lib.pygame.MOUSEMOTION:
                 #handle mouse motion
-                if prevMouse is not None:
+                currMouse = lib.screenToGame(lib.pygame.mouse.get_pos())
+                if prevMouse is not None and not prevMouse == currMouse:
                     #handle collision with LoF
-                    pass
-                prevMouse = lib.pygame.mouse.get_pos()
+                    collision = lib.getCollision(currMouse)
+                    #TODO actually get all possible collision boxes
+                    for line in set(collision + lib.getCollision(prevMouse)):
+                        if isinstance(line, Segment):
+                            intersection = lib.linesColliding((currMouse, prevMouse), (line.start, line.end))
+                            if (intersection is not None):
+                                lib.pygame.mouse.set_pos(lib.gameToScreen(prevMouse))
+                                currMouse = prevMouse
+                                break
+                prevMouse = currMouse
                 
 
                 #update line

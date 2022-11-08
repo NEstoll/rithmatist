@@ -11,8 +11,21 @@ class Forbiddance(Line):
         #initialize variables
         self.color = (255, 255, 255)
         self.segments = []
+        self.colliding = False
         
         self.instantiate(start, end)
+        self.setCollision(True)
+
+    def setCollision(self, collision:bool):
+        if collision and not self.colliding:
+            for s in self.segments:
+                Forbiddance.addCollision(s)
+        elif not collision and self.colliding:
+            for s in self.segments:
+                Forbiddance.removeCollision(s)
+        self.colliding = collision
+
+
 
     def instantiate(self, start, end) -> None:
 
@@ -25,15 +38,9 @@ class Forbiddance(Line):
 
         #create segments
         if len(self.segments) != 0:
-            for s in self.segments:
-                Forbiddance.removeCollision(s)
             self.segments = []
         for i in range(0, Forbiddance.maxSegments):
             self.segments.append(Segment((start[0]+slopex*i, start[1]+slopey*i), (start[0]+slopex*(i+1), start[1]+slopey*(i+1))))
-        
-        #add segments to collision
-        for s in self.segments:
-            Forbiddance.addCollision(s)
 
     @staticmethod      
     def addCollision(segment) -> None:

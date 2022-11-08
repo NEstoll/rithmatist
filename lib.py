@@ -18,10 +18,16 @@ def events() -> list[pygame.event.Event]:
     return pygame.event.get()
 
 def linesColliding(line1:tuple[tuple[float, float], tuple[float, float]], line2:tuple[tuple[float, float], tuple[float, float]]) -> tuple[float, float] | None:
-    a = ((line1[0][0]-line1[1][0])*(line2[0][1]-line1[1][1]) - (line1[0][1]-line1[1][1])*(line2[0][0]-line1[1][0])) / ((line1[0][1]-line1[1][1])*(line2[1][0]-line2[0][0]) - (line1[0][0]-line1[1][0])*(line2[1][1]-line2[0][1]))
-    b = ((line2[1][0]-line2[0][0])*(line2[0][1]-line1[1][1]) - (line2[1][1]-line2[0][1])*(line2[0][0]-line1[1][0])) / ((line1[0][1]-line1[1][1])*(line2[1][0]-line2[0][0]) - (line1[0][0]-line1[1][0])*(line2[1][1]-line2[0][1]))
+    #TODO needs cleaning/fixing up
+    if (line2[1] == line2[0] and line1[0] == line1[1] and line1[0] == line2[0]):
+        return line1[0]
+    d = (((line2[1][1]-line2[0][1])*(line1[1][0]-line1[0][0])) - ((line2[1][0]-line2[0][0])*(line1[1][1]-line1[0][1])))
+    if d == 0:
+        return None
+    a = ((line2[1][0]-line2[0][0])*(line1[0][1]-line2[0][1]) - (line2[1][1]-line2[0][1])*(line1[0][0]-line2[0][0])) / d
+    b = ((line1[1][0]-line1[0][0])*(line1[0][1]-line2[1][1]) - (line1[1][1]-line1[0][1])*(line1[0][0]-line2[1][0])) / d
     if (0 <= a <= 1) and (0 <= b <= 1):
-        intersection = (line2[0][0] + a*(line2[1][0]-line2[0][0]), line2[0][1] + (a*(line2[1][1]+line2[0][1])))
+        intersection = (line1[0][0] + (a*(line1[1][0]-line1[0][0])), line1[0][1] + (a*(line1[1][1]-line1[0][1])))
         return intersection
     else:
         return None
@@ -36,8 +42,10 @@ def isOutofBounds(position: tuple[float, float]) -> bool:
     return False
     
     
-def screenToGame(position:tuple[int, int]) -> tuple[int, int]:
-    return (int(position[0]*gameSize()[0]/pygame.display.get_surface().get_size()[0]), int(position[1]*gameSize()[1]/pygame.display.get_surface().get_size()[1]))
+def screenToGame(position:tuple[int, int]) -> tuple[float, float]:
+    return ((position[0]*gameSize()[0]/displaySize()[0]), (position[1]*gameSize()[1]/displaySize()[1]))
+def gameToScreen(position:tuple[int, int]) -> tuple[float, float]:
+    return ((position[0]*displaySize()[0]/gameSize()[0]), (position[1]*displaySize()[1]/gameSize()[1]))
 def collisionBoxes() -> None:
     for i in range(1, collisionNum+1):
         for j in range(1, collisionNum+1):
