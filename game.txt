@@ -1,0 +1,32 @@
+Idea:
+Game based on the magic system in The Rithmatist by Brandon Sanderson
+
+
+Knowns:
+    General:
+    Intent matters
+
+    LoV:
+    Higher frequency = better dmg
+    Higher wavelength = better force
+    LoF:
+    Weaker at corners when touching (cuased by touching or corner?)
+    LoW:
+    Bind points are "created" as things are bound
+    Everything is a 9 point
+    9 points are from midpoint, altitude/side and altitude/2
+    LoM:
+    "better" drawn = stronger
+    given commands after being drawn
+    Go, turn, wait, attack, 
+    
+
+
+
+
+Plans/implementations:
+
+Networking:
+    Line creation is sent to server, "validated" and broadcast to all clients
+    Occasionally server will ask clients about a specific line at a time, client must answer correctly
+    Each client and server have a "game time" mesured in seconds/frames/etc.    

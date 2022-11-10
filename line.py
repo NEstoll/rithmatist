@@ -7,5 +7,5 @@ class Line:
         pass
     def toBytes(self) -> bytes:
         return b''
-    def instantiate(self) -> None:
+    def instantiate(self, start, end) -> None:
         pass
