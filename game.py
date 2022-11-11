@@ -1,3 +1,4 @@
+import math
 import pygame
 import lib
 
@@ -85,9 +86,11 @@ if __name__ == "__main__": #temp runner code
     running = True
     start = (0, 0)
     currLine = None
-    prevMouse = None
+    prevMouse:tuple[float, float] | None = None
     while running:
+        count = 0
         for evt in lib.pygame.event.get(): #todo, add event handling to seperate class/game class
+            count += 1
             if evt.type == lib.pygame.quit:
                 lib.pygame.quit()
                 running = False
@@ -119,14 +122,37 @@ if __name__ == "__main__": #temp runner code
                 currMouse = lib.screenToGame(lib.pygame.mouse.get_pos())
                 if prevMouse is not None and not prevMouse == currMouse:
                     #handle collision with LoF
-                    collision = lib.getCollision(currMouse)
+                    collision = []
+                    [collision.extend(x) for x in lib.getCollisions(prevMouse, currMouse)]
                     #TODO actually get all possible collision boxes
-                    for line in set(collision + lib.getCollision(prevMouse)):
+                    for line in set(collision):
                         if isinstance(line, Segment):
-                            intersection = lib.linesColliding((currMouse, prevMouse), (line.start, line.end))
+                            intersection = lib.linesColliding((prevMouse, currMouse), (line.start, line.end))  # type: ignore
                             if (intersection is not None):
-                                lib.pygame.mouse.set_pos(lib.gameToScreen(prevMouse))
-                                currMouse = prevMouse
+                                l = math.dist(intersection, currMouse)
+                                otherAngle = line.angle()
+                                selfAngle = math.atan2(-currMouse[1]+prevMouse[1], -currMouse[0]+prevMouse[0])
+                                angle = otherAngle-selfAngle
+                                # print("angles: ", (math.degrees(otherAngle), math.degrees(selfAngle), math.degrees(angle)))
+                                mouseDirection = ((currMouse[0]-prevMouse[0])/math.dist(prevMouse, currMouse), (currMouse[1]-prevMouse[1])/math.dist(prevMouse, currMouse))
+                                lineDirection = ((line.end[0]-line.start[0])/math.dist(line.start, line.end), (line.end[1]-line.start[1])/math.dist(line.start, line.end))
+                                end = ((intersection[0]+lineDirection[0]*l*math.cos(angle)), (intersection[1]+lineDirection[1]*l*math.cos(angle)))
+                                if (math.cos(angle) > 0):
+                                    extra = math.dist(intersection, end)-math.dist(intersection, line.end)
+                                else:
+                                    extra = math.dist(intersection, end)-math.dist(intersection, line.start)
+
+                                if (extra > 0):
+                                    end = (end[0]+extra*mouseDirection[0], end[1]+extra*mouseDirection[1])
+                                else:
+                                    offset = math.dist(intersection, prevMouse)
+                                    # end = (end[0]-lineDirection[1]*line.width, end[1]+lineDirection[0]*line.width)
+                                    end = (end[0], end[1])
+                                bad = lib.linesColliding((prevMouse, end), (line.start, line.end))
+                                if (bad is not None):
+                                    print((prevMouse, end), (line.start, line.end), intersection, bad, currMouse)
+                                currMouse = end
+                                lib.pygame.mouse.set_pos(lib.gameToScreen(currMouse))
                                 break
                 prevMouse = currMouse
                 
@@ -141,6 +167,9 @@ if __name__ == "__main__": #temp runner code
                     # game.update()
                     # game.draw(pygame.display.get_surface())
                     pass
+        if count != 0:
+            # print("evts: ", count)
+            pass
         game.update()
         game.draw(pygame.display.get_surface())
         lib.pygame.time.delay(10)
