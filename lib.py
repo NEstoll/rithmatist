@@ -1,6 +1,4 @@
 #imports
-from cgitb import grey
-from turtle import st
 import pygame
 
 #drawing functions

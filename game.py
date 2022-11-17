@@ -1,6 +1,7 @@
 import math
 import pygame
 import lib
+from cursor import Cursor
 
 from forbiddance import Forbiddance, Segment
 from line import Line
@@ -49,7 +50,7 @@ class Game:
         lib.renderSurface.fill(0)
         display.fill(0)
         #TODO add real cursor (default can't be moved)
-        lib.drawPoint(lib.screenToGame(lib.pygame.mouse.get_pos()))
+        # lib.drawPoint(lib.screenToGame(lib.pygame.mouse.get_pos()))
         for o in self.objects:
             o.draw()
         for o in self.drawOnly:
@@ -82,7 +83,10 @@ if __name__ == "__main__": #temp runner code
     game.draw(pygame.display.get_surface())
     player = Player(Warding((1500, 800), 100))
     game.addPlayer(player)
-    
+
+    mouse = Cursor()
+    game.drawOnly.append(mouse)
+
     running = True
     start = (0, 0)
     currLine = None
@@ -129,6 +133,7 @@ if __name__ == "__main__": #temp runner code
                         if isinstance(line, Segment):
                             intersection = lib.linesColliding((prevMouse, currMouse), (line.start, line.end))  # type: ignore
                             if (intersection is not None):
+                                #TODO line is a segment, need to get the parent line for accurate movement.
                                 l = math.dist(intersection, currMouse)
                                 otherAngle = line.angle()
                                 selfAngle = math.atan2(-currMouse[1]+prevMouse[1], -currMouse[0]+prevMouse[0])
@@ -138,16 +143,17 @@ if __name__ == "__main__": #temp runner code
                                 lineDirection = ((line.end[0]-line.start[0])/math.dist(line.start, line.end), (line.end[1]-line.start[1])/math.dist(line.start, line.end))
                                 end = ((intersection[0]+lineDirection[0]*l*math.cos(angle)), (intersection[1]+lineDirection[1]*l*math.cos(angle)))
                                 if (math.cos(angle) > 0):
-                                    extra = math.dist(intersection, end)-math.dist(intersection, line.end)
+                                    extra = math.dist(intersection, end)-math.dist(intersection, line.parent.end)
                                 else:
-                                    extra = math.dist(intersection, end)-math.dist(intersection, line.start)
+                                    extra = math.dist(intersection, end)-math.dist(intersection, line.parent.start)
 
                                 if (extra > 0):
-                                    end = (end[0]+extra*mouseDirection[0], end[1]+extra*mouseDirection[1])
+                                    # end = (end[0]+extra*mouseDirection[0], end[1]+extra*mouseDirection[1])
+                                    pass
                                 else:
                                     offset = math.dist(intersection, prevMouse)
-                                    # end = (end[0]-lineDirection[1]*line.width, end[1]+lineDirection[0]*line.width)
-                                    end = (end[0], end[1])
+                                    end = (end[0]-lineDirection[1]*line.width, end[1]+lineDirection[0]*line.width)
+                                    # end = (end[0], end[1])
                                 bad = lib.linesColliding((prevMouse, end), (line.start, line.end))
                                 if (bad is not None):
                                     print((prevMouse, end), (line.start, line.end), intersection, bad, currMouse)
@@ -155,6 +161,7 @@ if __name__ == "__main__": #temp runner code
                                 lib.pygame.mouse.set_pos(lib.gameToScreen(currMouse))
                                 break
                 prevMouse = currMouse
+                mouse.mouse = currMouse
                 
 
                 #update line
@@ -172,4 +179,4 @@ if __name__ == "__main__": #temp runner code
             pass
         game.update()
         game.draw(pygame.display.get_surface())
-        lib.pygame.time.delay(10)
+        lib.pygame.time.delay(1)
