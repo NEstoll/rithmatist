@@ -40,7 +40,7 @@ class Forbiddance(Line):
         if len(self.segments) != 0:
             self.segments = []
         for i in range(0, Forbiddance.maxSegments):
-            self.segments.append(Segment((start[0]+slopex*i, start[1]+slopey*i), (start[0]+slopex*(i+1), start[1]+slopey*(i+1))))
+            self.segments.append(Segment((start[0]+slopex*i, start[1]+slopey*i), (start[0]+slopex*(i+1), start[1]+slopey*(i+1)), self))
 
     @staticmethod      
     def addCollision(segment) -> None:
@@ -100,11 +100,12 @@ class Forbiddance(Line):
         return b'\x02' + int(self.start[0]).to_bytes(2, 'big')+int(self.start[1]).to_bytes(2, 'big')+int(self.end[0]).to_bytes(2, 'big')+int(self.end[1]).to_bytes(2, 'big')
 
 class Segment(Line):
-    def __init__(self, start: tuple[float, float], end: tuple[float, float]) -> None:
+    def __init__(self, start: tuple[float, float], end: tuple[float, float], parent=None) -> None:
         self.start = start
         self.end = end
         self.damage = 0
         self.color = (255, 255, 255)
+        self.parent = parent
     def draw(self) -> None:
         lib.drawLine(self.start, self.end, self.color+(max(255-(self.damage*2.55),0),))
     def update(self) -> None:
