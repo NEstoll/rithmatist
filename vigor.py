@@ -10,7 +10,7 @@ class Vigor(Line):
     maxLength = 1000
     speed = 2
     
-    def __init__(self, start : tuple[int, int], end: tuple[int, int], drawn:bool=False) -> None:
+    def __init__(self, start : tuple[float, float], end: tuple[float, float], drawn:bool=False) -> None:
         """ 
             Creates Line of Vigor, extending in a sin wave from start to end
             Start is the only place with collision, and is the "head" of the line

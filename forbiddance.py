@@ -6,7 +6,7 @@ import lib
 class Forbiddance(Line):
     maxSegments = 100
 
-    def __init__(self, start : tuple[int, int], end: tuple[int, int]) -> None:
+    def __init__(self, start : tuple[float, float], end: tuple[float, float]) -> None:
         super().__init__()
         #initialize variables
         self.color = (255, 255, 255)
@@ -100,7 +100,7 @@ class Forbiddance(Line):
         return b'\x02' + int(self.start[0]).to_bytes(2, 'big')+int(self.start[1]).to_bytes(2, 'big')+int(self.end[0]).to_bytes(2, 'big')+int(self.end[1]).to_bytes(2, 'big')
 
 class Segment(Line):
-    def __init__(self, start: tuple[float, float], end: tuple[float, float], parent=None) -> None:
+    def __init__(self, start: tuple[float, float], end: tuple[float, float], parent) -> None:
         self.start = start
         self.end = end
         self.damage = 0
