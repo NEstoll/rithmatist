@@ -71,7 +71,7 @@ class Vigor(Line):
 
     def drawPoints(self, length: int) -> None:
         for i in range(1, int(min(len(self.points), length))):
-            lib.drawLine(self.points[i-1], self.points[i], self.color)
+            lib.drawRect(self.points[i-1], self.points[i], self.color)
     
 
 
