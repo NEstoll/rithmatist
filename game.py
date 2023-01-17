@@ -138,7 +138,7 @@ if __name__ == "__main__": #temp runner code
                                 otherAngle = line.angle()
                                 selfAngle = math.atan2(-currMouse[1]+prevMouse[1], -currMouse[0]+prevMouse[0])
                                 angle = otherAngle-selfAngle
-                                # print("angles: ", (math.degrees(otherAngle), math.degrees(selfAngle), math.degrees(angle)))
+                                print("angles: ", (math.degrees(otherAngle), math.degrees(selfAngle), math.degrees(angle)))
                                 mouseDirection = ((currMouse[0]-prevMouse[0])/math.dist(prevMouse, currMouse), (currMouse[1]-prevMouse[1])/math.dist(prevMouse, currMouse))
                                 lineDirection = ((line.end[0]-line.start[0])/math.dist(line.start, line.end), (line.end[1]-line.start[1])/math.dist(line.start, line.end))
                                 end = ((intersection[0]+lineDirection[0]*l*math.cos(angle)), (intersection[1]+lineDirection[1]*l*math.cos(angle)))
@@ -147,16 +147,21 @@ if __name__ == "__main__": #temp runner code
                                 else:
                                     extra = math.dist(intersection, end)-math.dist(intersection, line.parent.start)
 
+                                if (angle <= math.pi and angle >= 0):
+                                    offsetDir = 1
+                                else:
+                                    offsetDir = -1
+
                                 if (extra > 0):
                                     # end = (end[0]+extra*mouseDirection[0], end[1]+extra*mouseDirection[1])
                                     pass
                                 else:
                                     offset = math.dist(intersection, prevMouse)
-                                    end = (end[0]-lineDirection[1]*line.width, end[1]+lineDirection[0]*line.width)
+                                    end = (end[0]-lineDirection[1]*line.width*offsetDir, end[1]+lineDirection[0]*line.width*offsetDir)
                                     # end = (end[0], end[1])
                                 bad = lib.linesColliding((prevMouse, end), (line.start, line.end))
                                 if (bad is not None):
-                                    print((prevMouse, end), (line.start, line.end), intersection, bad, currMouse)
+                                    print("Bad: ", (prevMouse, end), (line.start, line.end), intersection, bad, currMouse)
                                 currMouse = end
                                 lib.pygame.mouse.set_pos(lib.gameToScreen(currMouse))
                                 break
