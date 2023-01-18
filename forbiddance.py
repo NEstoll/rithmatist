@@ -91,7 +91,7 @@ class Segment(Line):
         self.damage = 0
         self.color = (255, 255, 255)
     def draw(self) -> None:
-        lib.drawRect(self.start, self.end, self.color+(max(255-(self.damage*2.55),0),))
+        lib.drawRect(self.start, self.end) #, self.color+(max(255-(self.damage*2.55),0),)
     def update(self) -> None:
         if self.damage >= 100:
             raise lib.LineOutofBounds

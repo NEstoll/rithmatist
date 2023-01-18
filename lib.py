@@ -4,41 +4,53 @@ import math
 from pygame.locals import *
 
 #drawing functions
-def drawRect(self, start :tuple[float, float], end : tuple[float, float]):
-    self.image = pygame.image.load("image.jfif").convert()  
-    if start.getValue1() > end.getValue1():
-        topLeftY = start.getValue1()
-        botRightY = end.getValue1()
+def drawRect(start :tuple[float, float], end : tuple[float, float]):  
+    if start[1] > end[1]:
+        topLeftY = start[1]
+        botRightY = end[1]
     else:
-        topLeftY = start.getValue1()
-        botRightY = end.getValue1()
-    coordinates = pythag(start.getValue0(), topLeftY, end.getValue0(), botRightY)
-    rect = Rect(coordinates.getValue0(), coordinates.getValue1(), 10, topLeftY-botRightY)
-    rect.topleft = {coordinates.getValue0(), coordinates.getValue1()}
-    rect.bottomright = {coordinates.getValue2(), coordinates.getValue3()}
+        topLeftY = start[1]
+        botRightY = end[1]
+    coordinates = pythag(start[0], topLeftY, end[0], botRightY)
+    rect = Rect(coordinates[0], coordinates[1], 10, topLeftY-botRightY)
+    rect.topleft = (coordinates[0], coordinates[1])
+    rect.bottomright = (coordinates[2], coordinates[3])
     pygame.draw.rect(renderSurface, (255, 255, 255), rect)
-    self.blit(self.image, renderSurface)
+    renderSurface.blit(pygame.image.load("images.jfif").convert(), rect)
 
 def pythag(topLX, topLY, botRX, botRY):
     size = 10
-    m = botRY - topLY/botRX - topLX
-    l = math.sqrt(((size/2)^2)/m)
+    if (botRX - topLX == 0):
+        m = 0
+    else:
+        m = botRY - topLY/botRX - topLX
+    if (m > 0):
+        l = math.sqrt(((size/2)**2)/m)
+    elif (m < 0):
+        l = -1 * math.sqrt(((size/2)**2)/(-1 * m))
+    else: 
+        l = 5
     if (m > 1):
         topLX = topLX - (l*m)
         topLY = topLY + l
         botRX = botRX - (l*m)
-        botRY = botRY - l
+        botRY = botRY + l
+    elif (m == 0):
+        topLX = topLX - l
+        topLY = topLY + l
+        botRX = botRX - l
+        botRY = botRY + l
     else:
         topLY = topLY - (l*m)
-        topLY = topLX + l
+        topLX = topLX + l
         botRY = botRY - (l*m)
-        botRX = botRX - l
+        botRX = botRX + l
     return (topLX, topLY, botRX, botRY)
 
 #def drawLine(start :tuple[float, float], end : tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)) -> None:
 #    pygame.draw.line(renderSurface, color, start, end, 3)
-#def drawPoint(center: tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)) -> None:
-#    pygame.draw.circle(renderSurface, color, center, 3)
+def drawPoint(center: tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)) -> None:
+    pygame.draw.circle(renderSurface, color, center, 3)
 
 #helper functions
 def gameSize() -> tuple[int, int]:

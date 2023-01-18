@@ -32,5 +32,5 @@ class Warding(Line):
         prev =(self.centerx + self.radius, self.centery)
         for i in range(0, len(self.segments)):
             next = (self.centerx + self.radius*math.cos((i+1)*2*math.pi/Warding.maxSegments), self.centery + self.radius*math.sin((i+1)*2*math.pi/Warding.maxSegments))
-            lib.drawRect(prev, next, self.color)
+            lib.drawRect(prev, next,) #  self.color
             prev = next
