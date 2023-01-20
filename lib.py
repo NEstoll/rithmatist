@@ -5,47 +5,34 @@ from pygame.locals import *
 
 #drawing functions
 def drawRect(start :tuple[float, float], end : tuple[float, float]):  
-    if start[1] > end[1]:
-        topLeftY = start[1]
-        botRightY = end[1]
-    else:
-        topLeftY = start[1]
-        botRightY = end[1]
-    coordinates = pythag(start[0], topLeftY, end[0], botRightY)
-    rect = Rect(coordinates[0], coordinates[1], 10, topLeftY-botRightY)
-    rect.topleft = (coordinates[0], coordinates[1])
-    rect.bottomright = (coordinates[2], coordinates[3])
-    pygame.draw.rect(renderSurface, (255, 255, 255), rect)
-    renderSurface.blit(pygame.image.load("images.jfif").convert(), rect)
 
-def pythag(topLX, topLY, botRX, botRY):
-    size = 10
-    if (botRX - topLX == 0):
-        m = 0
+    # Makes slope positive
+    if start[1] > end[1]:
+        topY = start[1]
+        topX = start[0]
+        botY = end[1]
+        botX = end[0]
     else:
-        m = botRY - topLY/botRX - topLX
-    if (m > 0):
-        l = math.sqrt(((size/2)**2)/m)
-    elif (m < 0):
-        l = -1 * math.sqrt(((size/2)**2)/(-1 * m))
-    else: 
-        l = 5
-    if (m > 1):
-        topLX = topLX - (l*m)
-        topLY = topLY + l
-        botRX = botRX - (l*m)
-        botRY = botRY + l
-    elif (m == 0):
-        topLX = topLX - l
-        topLY = topLY + l
-        botRX = botRX - l
-        botRY = botRY + l
-    else:
-        topLY = topLY - (l*m)
-        topLX = topLX + l
-        botRY = botRY - (l*m)
-        botRX = botRX + l
-    return (topLX, topLY, botRX, botRY)
+        topY = end[1]
+        topX = end[0]
+        botY = start[1]
+        botX = start[0]
+
+    # gets topleft and bottomright coordinates from line
+    # coordinates = pythag(start[0], topLeftY, end[0], botRightY)
+    
+    length = math.sqrt((topY-botY)**2 + (topX-botX)**2)
+    # Draw and orient rect
+    rect = Rect(topX - 5, topY, 10, length)
+    
+    pygame.draw.rect(renderSurface, (255, 255, 255), rect)
+
+    # blit image over rect
+    renderSurface.blit(pygame.image.load("images.jfif").convert(), rect, rect)
+
+
+
+
 
 #def drawLine(start :tuple[float, float], end : tuple[float, float], color: tuple[int, int, int]=(255, 255, 255)) -> None:
 #    pygame.draw.line(renderSurface, color, start, end, 3)
