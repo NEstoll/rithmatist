@@ -1,12 +1,14 @@
 #imports
 import pygame
 import math
+import random
 from pygame.locals import *
+
 
 #drawing functions
 def drawRect(start :tuple[float, float], end : tuple[float, float]):  
 
-    # Makes slope positive
+    # checks highest point
     if start[1] > end[1]:
         topY = start[1]
         topX = start[0]
@@ -17,18 +19,17 @@ def drawRect(start :tuple[float, float], end : tuple[float, float]):
         topX = end[0]
         botY = start[1]
         botX = start[0]
-
-    # gets topleft and bottomright coordinates from line
-    # coordinates = pythag(start[0], topLeftY, end[0], botRightY)
     
     length = math.sqrt((topY-botY)**2 + (topX-botX)**2)
-    # Draw and orient rect
+    # Draw rect
     rect = Rect(topX - 5, topY, 10, length)
-    
     pygame.draw.rect(renderSurface, (255, 255, 255), rect)
 
+    # Setting image rect
+    imageRect = Rect(127, 34, 10, length)
+
     # blit image over rect
-    renderSurface.blit(pygame.image.load("images.jfif").convert(), rect, rect)
+    renderSurface.blit(pygame.image.load("images.jfif").convert(), rect, imageRect)
 
 
 
