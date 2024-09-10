@@ -3,11 +3,11 @@ import pygame
 import lib
 from cursor import Cursor
 
-from forbiddance import Forbiddance, Segment
-from line import Line
+from Lines.forbiddance import Forbiddance, Segment
+from Lines.line import Line
 from player import Player
-from vigor import Vigor
-from warding import Warding
+from Lines.vigor import Vigor
+from Lines.warding import Warding
 
 class Game:
     # Instance of a game

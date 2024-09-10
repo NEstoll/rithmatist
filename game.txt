@@ -9,8 +9,15 @@ Knowns:
     LoV:
     Higher frequency = better dmg
     Higher wavelength = better force
+    can move LoW, at least a few inches (ch 20, end image)
+    vanish once they hit something (ch. 1, duel)
+    6 hits to break LoW, 10 for LoF (ch. 11, jordan defense)
+    reflect off of LoF, but how? straight on hits don't
+    can reflect at least 3 times and still deal dmg (ch 21, end image)
     LoF:
-    Weaker at corners when touching (cuased by touching or corner?)
+    Weaker at corners when touching (caused by touching or corner?)
+    cannot be crossed (width = height of barrier)
+    marks crosses are 
     LoW:
     Bind points are "created" as things are bound
     Everything is a 9 point

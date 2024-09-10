@@ -3,12 +3,12 @@ import socket as socketLib
 import sys
 import threading
 
-from forbiddance import Forbiddance
+from Lines.forbiddance import Forbiddance
 from game import Game
 import lib
-from line import Line
-from vigor import Vigor
-from warding import Warding
+from Lines.line import Line
+from Lines.vigor import Vigor
+from Lines.warding import Warding
 
 class Client:
     #server instance of the game

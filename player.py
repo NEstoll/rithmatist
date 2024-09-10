@@ -1,5 +1,5 @@
 import lib
-from warding import Warding
+from Lines.warding import Warding
 
 class Player:
     def __init__(self, home: Warding):
