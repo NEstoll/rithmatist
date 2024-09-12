@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Run game",
             "type": "python",
             "request": "launch",
@@ -25,7 +32,10 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/client.py",
-            "args": ["10.243.0.6", "33514"],
+            "args": [
+                "10.243.0.6",
+                "33514"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         }

@@ -18,17 +18,29 @@ def events() -> list[pygame.event.Event]:
     return pygame.event.get()
 
 def linesColliding(line1:tuple[tuple[float, float], tuple[float, float]], line2:tuple[tuple[float, float], tuple[float, float]]) -> tuple[float, float] | None:
-    #TODO needs cleaning/fixing up
-    if (line2[1] == line2[0] and line1[0] == line1[1] and line1[0] == line2[0]):
+    #https://stackoverflow.com/a/565282
+    if (line2[1] == line2[0] and line1[0] == line1[1] and line1[0] == line2[0]): #if single point, return that point
         return line1[0]
-    d = (((line2[1][1]-line2[0][1])*(line1[1][0]-line1[0][0])) - ((line2[1][0]-line2[0][0])*(line1[1][1]-line1[0][1])))
-    if d == 0:
-        return None
-    a = ((line2[1][0]-line2[0][0])*(line1[0][1]-line2[0][1]) - (line2[1][1]-line2[0][1])*(line1[0][0]-line2[0][0])) / d
-    b = ((line1[1][0]-line1[0][0])*(line1[0][1]-line2[1][1]) - (line1[1][1]-line1[0][1])*(line1[0][0]-line2[1][0])) / d
-    if (0 <= a <= 1) and (0 <= b <= 1):
-        intersection = (line1[0][0] + (a*(line1[1][0]-line1[0][0])), line1[0][1] + (a*(line1[1][1]-line1[0][1])))
-        return intersection
+    # calculate the delta from start to end for each line
+    deltaLine1 = (line1[1][0] - line1[0][0], line1[1][1] - line1[0][1])
+    deltaLine2 = (line2[1][0] - line2[0][0], line2[1][1] - line2[0][1])
+
+    #determinant/crossproduct
+    def det(a, b):
+        return a[0] * b[1] - a[1] * b[0]
+
+    # divisor, if 0 lines are parallel
+    div = det(deltaLine1, deltaLine2)
+    if div == 0:
+       return None
+
+    diff = (line2[0][0] - line1[0][0], line2[0][1] - line1[0][1])
+    if diff == (0, 0):
+        return None #lines are co-linear
+    t = det(diff, deltaLine2) / div
+    u = det(diff, deltaLine1) / div
+    if (0 <= t <= 1 and 0 <= u <= 1): #if collision is within segment
+        return (line1[0][0]+t*deltaLine1[0], line1[0][1]+t*deltaLine1[1])
     return None
 
 def getCollisions(start: tuple[float, float], end:  tuple[float, float]) -> list[list]:
